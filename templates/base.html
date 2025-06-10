@@ -11,6 +11,7 @@
 
     <!-- Tailwind CSS -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet">
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,6 +37,7 @@
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
     />
+    
 
     <!-- Swiper JS -->
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -70,7 +72,9 @@
                 <a href="{% url 'inquiry' %}" class="ml-4 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-full font-semibold transition duration-300">
                     Get a Quote
                 </a>
-                <a href="{% url 'parts:cart_detail' %}">View Cart ({{ cart|length }})</a>
+                <a href="{% url 'parts:cart_detail' %}" class="floating-cart">
+                    🛒 (<span id="cart-count">{{ cart|length }}</span>)
+                </a>
 
 
             </div>
