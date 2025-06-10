@@ -50,6 +50,7 @@ class Part(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     slug = models.SlugField(max_length=255, unique=True, blank=True) # Add slug for cleaner URLs
+    stock = models.PositiveIntegerField(default=0)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -58,6 +59,53 @@ class Part(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.part_number})"
+
+class Cart:
+    def __init__(self, request):
+        self.session = request.session
+        cart = self.session.get("cart")
+        if not cart:
+            cart = self.session["cart"] = {}
+        self.cart = cart
+
+    def add(self, part, quantity=1, override_quantity=False):
+        part_id = str(part.id)
+        if part_id not in self.cart:
+            self.cart[part_id] = {"quantity": 0, "price": str(part.price)}
+        if override_quantity:
+            self.cart[part_id]["quantity"] = quantity
+        else:
+            self.cart[part_id]["quantity"] += quantity
+        self.save()
+
+    def save(self):
+        self.session.modified = True
+
+    def remove(self, part):
+        part_id = str(part.id)
+        if part_id in self.cart:
+            del self.cart[part_id]
+            self.save()
+
+    def __iter__(self):
+        from .models import Part
+        part_ids = self.cart.keys()
+        parts = Part.objects.filter(id__in=part_ids)
+        for part in parts:
+            cart_item = self.cart[str(part.id)]
+            cart_item["part"] = part
+            cart_item["total_price"] = float(cart_item["price"]) * cart_item["quantity"]
+            yield cart_item
+
+    def __len__(self):
+        return sum(item["quantity"] for item in self.cart.values())
+
+    def get_total_price(self):
+        return sum(float(item["price"]) * item["quantity"] for item in self.cart.values())
+
+    def clear(self):
+        self.session["cart"] = {}
+        self.save()
 
 # New Inquiry Model
 class Inquiry(models.Model):

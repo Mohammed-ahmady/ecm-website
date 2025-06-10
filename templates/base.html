@@ -70,8 +70,11 @@
                 <a href="{% url 'inquiry' %}" class="ml-4 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-full font-semibold transition duration-300">
                     Get a Quote
                 </a>
-            </div>
+                <a href="{% url 'parts:cart_detail' %}">View Cart ({{ cart|length }})</a>
 
+
+            </div>
+            
             <!-- Mobile Button -->
             <div class="md:hidden">
                 <button id="mobile-menu-button" class="text-white focus:outline-none">
@@ -133,10 +136,12 @@
             </div>
         </div>
 
+
         <!-- Bottom -->
         <div class="container mx-auto px-4 mt-8 pt-6 border-t border-gray-700 text-center text-sm text-gray-500">
             &copy; {% now "Y" %} Magirus Parts. All rights reserved.
         </div>
+        
     </footer>
 
     <!-- JS: Mobile Menu Toggle -->

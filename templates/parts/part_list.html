@@ -66,9 +66,9 @@
         {% for part in parts %}
           <div class="bg-white rounded-lg shadow hover:shadow-lg border border-gray-200 overflow-hidden transition-all">
             {% if part.image %}
-              <img src="{{ part.image.url }}" alt="{{ part.name }}" class="w-full h-48 object-cover">
+              <img src="{{ part.image.url }}" alt="{{ part.name }}" class="w-full h-48 object-cover" loading="lazy">
             {% else %}
-              <img src="{% static 'images/placeholder-part.jpg' %}" alt="Placeholder" class="w-full h-48 object-cover">
+              <img src="{% static 'images/magirus.jpeg' %}" alt="Placeholder" class="w-full h-48 object-cover">
             {% endif %}
             <div class="p-4">
               <h3 class="text-lg font-bold text-gray-800">{{ part.name }}</h3>
@@ -87,6 +87,11 @@
           </div>
         {% endfor %}
       </div>
+      <form method="post" action="{% url 'parts:add_to_cart' part.id %}">
+        {% csrf_token %}
+        <button type="submit">Add to Cart</button>
+      </form>
+
 
       <!-- Pagination -->
       {% if is_paginated %}
