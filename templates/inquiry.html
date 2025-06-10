@@ -1,0 +1,46 @@
+{# C:\Users\Mohammed\Documents\ECM\ecm_website\templates\inquiry.html #}
+{% extends 'base.html' %}
+{% load static %} {# if you use static files like icons, otherwise not strictly needed #}
+
+{% block title %}Request a Quote - European Center for Magirus{% endblock %}
+
+{% block content %}
+<h1 class="text-4xl font-bold text-ecm-primary mb-8 text-center">Request a Quote or Information</h1>
+
+<div class="max-w-3xl mx-auto bg-white p-8 rounded-lg shadow-md">
+    <p class="text-gray-700 text-lg mb-6 text-center">
+        Please fill out the form below with your details and the parts you are interested in. Our team will get back to you shortly.
+    </p>
+
+    {# Display Django messages (e.g., success or error from form submission) #}
+    {% if messages %}
+        <div class="mb-4">
+            {% for message in messages %}
+                <div class="p-3 rounded-md {% if message.tags == 'success' %}bg-green-100 text-green-700{% else %}bg-red-100 text-red-700{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <form method="post" action="{% url 'inquiry' %}" class="space-y-6">
+        {% csrf_token %} {# Django's Cross-Site Request Forgery protection #}
+        {% for field in form %}
+            <div class="mb-4">
+                <label for="{{ field.id_for_label }}" class="block text-gray-700 font-semibold mb-2">{{ field.label }}</label>
+                {{ field }} {# Renders the form field with its widgets #}
+                {% if field.help_text %}
+                    <p class="text-sm text-gray-500 mt-1">{{ field.help_text }}</p>
+                {% endif %}
+                {% for error in field.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+        <button type="submit"
+                class="w-full bg-ecm-accent text-white font-semibold px-6 py-3 rounded-md hover:bg-opacity-90 transition-colors duration-300 shadow-lg">
+            Submit Inquiry
+        </button>
+    </form>
+</div>
+{% endblock %}

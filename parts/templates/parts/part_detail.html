@@ -1,0 +1,57 @@
+{# C:\Users\Mohammed\Documents\ECM\parts\templates\parts\part_detail.html #}
+{% extends 'base.html' %}
+{% load static %} {# Make sure this is loaded if you use static files in this template #}
+
+{% block title %}{{ part.name }} - European Center for Magirus{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-md p-8 flex flex-col md:flex-row gap-8">
+    <div class="md:w-1/2">
+        {% if part.image %}
+            <img src="{{ part.image.url }}" alt="{{ part.name }}" class="w-full h-auto rounded-lg shadow-lg">
+        {% else %}
+            {# Placeholder image: https://placehold.co/600x400/e67300/ffffff?text=No+Image+Available #}
+            <img src="https://placehold.co/600x400/e67300/ffffff?text=No+Image+Available" alt="No Image" class="w-full h-auto rounded-lg shadow-lg">
+        {% endif %}
+    </div>
+    <div class="md:w-1/2 flex flex-col justify-between">
+        <div>
+            <h1 class="text-4xl font-bold text-ecm-primary mb-4">{{ part.name }}</h1>
+            <p class="text-gray-600 text-lg mb-2">Part Number: <span class="font-semibold">{{ part.part_number }}</span></p>
+            {% if part.category %}
+                <p class="text-gray-600 text-lg mb-2">Category:
+                    <a href="{% url 'parts:part_list' %}?category={{ part.category.slug }}"
+                       class="text-ecm-accent hover:underline">{{ part.category.name }}</a>
+                </p>
+            {% endif %}
+            {% if part.truck_models.exists %}
+                <p class="text-gray-600 text-lg mb-4">Compatible Truck Models:
+                    {% for model in part.truck_models.all %}
+                        <a href="{% url 'parts:part_list' %}?truck_model={{ model.slug }}"
+                           class="text-ecm-accent hover:underline mr-1">{{ model.name }}</a>{% if not forloop.last %},{% endif %}
+                    {% endfor %}
+                </p>
+            {% endif %}
+
+            <p class="text-gray-800 text-base leading-relaxed mb-6">{{ part.description|default:"No detailed description available for this part. Please contact us for more information." }}</p>
+        </div>
+
+        <div class="mt-auto pt-6 border-t border-gray-200">
+            <div class="flex justify-between items-center mb-4">
+                <span class="text-3xl font-bold text-ecm-accent">
+                    {% if part.price %}{{ part.price|floatformat:2 }} EGP{% else %}Price on Request{% endif %}
+                </span>
+                {% if part.stock_quantity > 0 %}
+                    <span class="text-green-600 font-semibold text-xl">In Stock ({{ part.stock_quantity }} available)</span>
+                {% else %}
+                    <span class="text-red-600 font-semibold text-xl">Out of Stock</span>
+                {% endif %}
+            </div>
+            <a href="{% url 'inquiry' %}"
+               class="w-full inline-block text-center bg-ecm-primary text-white font-semibold px-6 py-3 rounded-md hover:bg-opacity-90 transition-colors duration-300 text-lg">
+                Request Quote or More Info
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
