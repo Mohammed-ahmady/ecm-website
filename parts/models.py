@@ -107,6 +107,7 @@ class Cart:
         self.session["cart"] = {}
         self.save()
 
+
 # New Inquiry Model
 class Inquiry(models.Model):
     customer_name = models.CharField(max_length=200)

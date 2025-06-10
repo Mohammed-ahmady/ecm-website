@@ -20,6 +20,16 @@ def cart_detail(request):
     cart = Cart(request)
     return render(request, "cart/cart_detail.html", {"cart": cart})
 
+def remove_from_cart(request, part_id):
+    cart = Cart(request)
+    part = get_object_or_404(Part, id=part_id)
+    cart.remove(part)
+    return redirect("parts:cart_detail")
+
+
+# Function-based view for the checkout page
+def checkout_page(request):
+    return render(request, 'cart/checkout.html')  # you can change this path later
 
 # View for listing parts with search and filters
 class PartListView(ListView):
