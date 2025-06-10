@@ -5,8 +5,21 @@ from django.db.models import Q
 from django.urls import reverse_lazy
 from django.contrib import messages
 
-from .models import Part, Category, TruckModel, Inquiry
+from .models import Part, Category, TruckModel, Inquiry, Cart
 from .forms import InquiryForm # Import the form you just created
+
+
+
+def add_to_cart(request, part_id):
+    cart = Cart(request)
+    part = get_object_or_404(Part, id=part_id)
+    cart.add(part=part)
+    return redirect("parts:cart_detail")
+
+def cart_detail(request):
+    cart = Cart(request)
+    return render(request, "cart/cart_detail.html", {"cart": cart})
+
 
 # View for listing parts with search and filters
 class PartListView(ListView):
@@ -20,7 +33,7 @@ class PartListView(ListView):
         query = self.request.GET.get('q')
         category_slug = self.request.GET.get('category')
         truck_model_slug = self.request.GET.get('truck_model')
-
+        
         if query:
             queryset = queryset.filter(
                 Q(name__icontains=query) |
