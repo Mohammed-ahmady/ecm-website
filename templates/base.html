@@ -1,0 +1,252 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Magirus Parts | Authentic Truck Spare Parts{% endblock %}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'images/delivery-truck.png' %}" type="image/png">
+
+    <!-- Tailwind CSS -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Custom Fonts -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', serif;
+        }
+    </style>
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Swiper CSS -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+    />
+    
+
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!-- AOS for Scroll Animations -->
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+
+    {% block head_extra %}{% endblock %}
+</head>
+<body class="flex flex-col min-h-screen">
+    <!-- Preloader -->
+    <div id="preloader" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-gray-900 text-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="{% url 'home' %}" class="text-3xl font-bold tracking-tight">
+                <span class="text-orange-500">The European Magirus</span> Center
+            </a>
+
+            <!-- Desktop Nav -->
+            <div class="hidden md:flex items-center space-x-8 text-lg font-medium">
+                <a href="{% url 'home' %}" class="hover:text-orange-400 transition">Home</a>
+                <a href="{% url 'parts:part_list' %}" class="hover:text-orange-400 transition">Parts</a>
+                <a href="{% url 'about' %}" class="hover:text-orange-400 transition">About Us</a>
+                <a href="{% url 'contact' %}" class="hover:text-orange-400 transition">Contact</a>
+                <a href="{% url 'inquiry' %}" class="ml-4 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-full font-semibold transition duration-300">
+                    Get a Quote
+                </a>
+                <a href="{% url 'parts:cart_detail' %}" class="floating-cart">
+                    🛒 (<span id="cart-count">{{ cart|length }}</span>)
+                </a>
+
+
+            </div>
+            
+            <!-- Mobile Button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-white focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Mobile Nav -->
+        <div id="mobile-menu" class="hidden md:hidden bg-gray-800 px-6 py-4">
+            <a href="{% url 'home' %}" class="block text-white py-2 hover:text-orange-400">Home</a>
+            <a href="{% url 'parts:part_list' %}" class="block text-white py-2 hover:text-orange-400">Parts</a>
+            <a href="{% url 'about' %}" class="block text-white py-2 hover:text-orange-400">About Us</a>
+            <a href="{% url 'contact' %}" class="block text-white py-2 hover:text-orange-400">Contact</a>
+            <a href="{% url 'inquiry' %}" class="block mt-3 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-full text-center font-semibold">
+                Get a Quote
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-10 mt-12">
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- About -->
+            <div>
+                <h4 class="text-white text-xl font-semibold mb-4">Magirus Parts</h4>
+                <p class="text-sm leading-relaxed">Your trusted source for high-quality Magirus truck spare parts. We deliver genuine and reliable components worldwide.</p>
+            </div>
+
+            <!-- Quick Links -->
+            <div>
+                <h4 class="text-white text-xl font-semibold mb-4">Quick Links</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="{% url 'home' %}" class="hover:text-orange-400 transition">Home</a></li>
+                    <li><a href="{% url 'parts:part_list' %}" class="hover:text-orange-400 transition">Parts Catalog</a></li>
+                    <li><a href="{% url 'about' %}" class="hover:text-orange-400 transition">About Us</a></li>
+                    <li><a href="{% url 'contact' %}" class="hover:text-orange-400 transition">Contact Us</a></li>
+                    <li><a href="{% url 'inquiry' %}" class="hover:text-orange-400 transition">Request a Quote</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact + Social -->
+            <div>
+                <h4 class="text-white text-xl font-semibold mb-4">Get in Touch</h4>
+                <p class="text-sm">Email: <a href="mailto:info@magirusparts.com" class="hover:text-orange-400 transition">info@magirusparts.com</a></p>
+                <p class="text-sm">Phone: +123 456 7890</p>
+                <div class="flex space-x-4 mt-4 text-xl">
+                    <a href="#" class="text-gray-400 hover:text-orange-400"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-orange-400"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-orange-400"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-orange-400"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Bottom -->
+        <div class="container mx-auto px-4 mt-8 pt-6 border-t border-gray-700 text-center text-sm text-gray-500">
+            &copy; {% now "Y" %} Magirus Parts. All rights reserved.
+        </div>
+        
+    </footer>
+
+    <!-- JS: Mobile Menu Toggle -->
+    <script>
+        document.getElementById('mobile-menu-button').addEventListener('click', () => {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+    </script>
+    <script>
+    AOS.init({
+        duration: 1000,
+        easing: 'ease-in-out',
+        once: true
+    });
+</script>
+<script>
+    // Hero animation on load
+    window.addEventListener('load', () => {
+        gsap.from("header", {duration: 1, y: -50, opacity: 0, ease: "power2.out"});
+        gsap.from("main", {duration: 1.2, y: 30, opacity: 0, delay: 0.3, ease: "power2.out"});
+    });
+</script>
+<script>
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            gsap.to("#preloader", {opacity: 0, duration: 0.6, onComplete: () => {
+                document.getElementById('preloader').style.display = 'none';
+            }});
+        }, 300);
+    });
+</script>
+<script>
+    const counters = document.querySelectorAll('.counter');
+    const options = { threshold: 1.0 };
+    
+    const animateCount = (el, target) => {
+        let count = 0;
+        const speed = target / 50;
+        const update = () => {
+            if (count < target) {
+                count += speed;
+                el.textContent = Math.ceil(count);
+                requestAnimationFrame(update);
+            } else {
+                el.textContent = target;
+            }
+        };
+        update();
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const el = entry.target;
+                const target = +el.dataset.target;
+                animateCount(el, target);
+                observer.unobserve(el);
+            }
+        });
+    }, options);
+
+    counters.forEach(counter => observer.observe(counter));
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  new Swiper('.testimonial-swiper', {
+    loop: true,
+    autoplay: {
+      delay: 4000, // 4 seconds
+      disableOnInteraction: false,
+    },
+    pagination: {
+      el: '.swiper-pagination',
+      clickable: true,
+    },
+    speed: 600, // smooth transition speed
+   effect: 'fade',
+    fadeEffect: {
+    crossFade: true
+},
+// you can change to 'fade', 'cube', etc.
+  });
+});
+</script>
+<script>
+  const backToTopBtn = document.getElementById("backToTopBtn");
+
+  window.addEventListener("scroll", () => {
+    if (window.scrollY > 300) {
+      backToTopBtn.classList.remove("opacity-0", "pointer-events-none");
+    } else {
+      backToTopBtn.classList.add("opacity-0", "pointer-events-none");
+    }
+  });
+
+  backToTopBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+</script>
+
+
+</body>
+</html>

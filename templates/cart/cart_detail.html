@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Cart{% endblock %}
+{% load static %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-10">
+  <h1 class="text-2xl font-bold mb-6 text-gray-800">Your Shopping Cart</h1>
+
+  {% if cart %}
+    <ul class="space-y-4">
+      {% for item in cart %}
+      <li class="flex items-center justify-between p-4 bg-white shadow rounded-lg">
+        <div class="flex items-center space-x-4">
+        {% if item.part.image %}
+          <img src="{{ item.part.image.url }}" alt="{{ item.part.name }}" class="w-16 h-16 object-cover rounded">
+        {% else %}
+          <img src="{% static 'images/magirus.jpeg' %}" alt="Placeholder" class="w-16 h-16 object-cover rounded">
+        {% endif %}
+
+          <div>
+            <h2 class="text-lg font-semibold text-gray-800">{{ item.part.name }}</h2>
+            <p class="text-sm text-gray-500">Qty: {{ item.quantity }}</p>
+            <p class="text-sm font-semibold text-orange-600">EGP {{ item.total_price }}</p>
+          </div>
+        </div>
+        <a href="{% url 'parts:remove_from_cart' item.part.id %}" class="text-red-600 hover:text-red-800 text-sm font-medium">✕ Remove</a>
+      </li>
+      {% endfor %}
+    </ul>
+
+    <div class="mt-8 text-right">
+      <h3 class="text-xl font-bold text-gray-800">Total: EGP {{ cart.get_total_price }}</h3>
+      <a href="{% url 'parts:checkout_page' %}">Checkout</a>
+    </div>
+  {% else %}
+    <p class="text-center text-gray-500">Your cart is empty.</p>
+  {% endif %}
+</div>
+{% endblock %}

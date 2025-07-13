@@ -1,0 +1,109 @@
+{# C:\Users\Mohammed\Documents\ECM\parts\templates\parts\part_list.html #}
+{% extends 'base.html' %}
+{% load static %} {# Make sure this is loaded if you use static files in this template #}
+
+{% block title %}Parts Inventory - European Center for Magirus{% endblock %}
+
+{% block content %}
+<h1 class="text-4xl font-bold text-ecm-primary mb-8 text-center">Our Parts Inventory</h1>
+
+<div class="flex flex-col md:flex-row gap-6 mb-8">
+    <!-- Sidebar for Filters -->
+    <aside class="md:w-1/4 bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-ecm-primary mb-4">Filter Parts</h2>
+        <form action="{% url 'parts:part_list' %}" method="get">
+            <div class="mb-4">
+                <label for="q" class="block text-gray-700 font-semibold mb-2">Search by Keyword/Part No.</label>
+                <input type="text" id="q" name="q" value="{{ current_query }}"
+                       class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ecm-accent"
+                       placeholder="e.g., engine, axle, 123456">
+            </div>
+
+            <div class="mb-4">
+                <label for="category" class="block text-gray-700 font-semibold mb-2">Category</label>
+                <select id="category" name="category"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ecm-accent">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.slug }}" {% if current_category == category.slug %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-6">
+                <label for="truck_model" class="block text-gray-700 font-semibold mb-2">Truck Model</label>
+                <select id="truck_model" name="truck_model"
+                        class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-ecm-accent">
+                    <option value="">All Truck Models</option>
+                    {% for model in truck_models %}
+                        <option value="{{ model.slug }}" {% if current_truck_model == model.slug %}selected{% endif %}>
+                            {{ model.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button type="submit"
+                    class="w-full bg-ecm-primary text-white font-semibold px-4 py-2 rounded-md hover:bg-opacity-90 transition-colors duration-300 shadow">
+                Apply Filters
+            </button>
+            {% if current_query or current_category or current_truck_model %}
+            <a href="{% url 'parts:part_list' %}" class="w-full block text-center mt-2 text-ecm-accent hover:underline">Clear Filters</a>
+            {% endif %}
+        </form>
+    </aside>
+
+    <!-- Main Content for Parts List -->
+    <div class="md:w-3/4">
+        {% if parts %}
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for part in parts %}
+                    <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col overflow-hidden">
+                        {% if part.image %}
+                            <img src="{{ part.image.url }}" alt="{{ part.name }}" class="w-full h-48 object-cover">
+                        {% else %}
+                            {# Placeholder image: https://placehold.co/400x200/e67300/ffffff?text=No+Image #}
+                            <img src="https://placehold.co/400x200/e67300/ffffff?text=No+Image" alt="No Image" class="w-full h-48 object-cover">
+                        {% endif %}
+                        <div class="p-6 flex-grow">
+                            <h3 class="text-xl font-semibold text-ecm-primary mb-2">{{ part.name }}</h3>
+                            <p class="text-gray-600 mb-2">Part No: <span class="font-medium">{{ part.part_number }}</span></p>
+                            <p class="text-gray-700 text-sm mb-4 line-clamp-3">{{ part.description|default:"No description available." }}</p>
+                            <div class="flex justify-between items-center mt-auto">
+                                <span class="text-lg font-bold text-ecm-accent">
+                                    {% if part.price %}{{ part.price|floatformat:2 }} EGP{% else %}Price on Request{% endif %}
+                                </span>
+                                <a href="{% url 'parts:part_detail' pk=part.pk %}"
+                                   class="bg-ecm-accent text-white px-4 py-2 rounded-md hover:bg-opacity-90 transition-colors duration-300">
+                                    View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+                <div class="flex justify-center mt-8 space-x-2">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}{% if current_query %}&q={{ current_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_truck_model %}&truck_model={{ current_truck_model }}{% endif %}"
+                           class="px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-100 transition-colors duration-300">Previous</a>
+                    {% endif %}
+                    <span class="px-4 py-2 text-ecm-primary font-semibold">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}{% if current_query %}&q={{ current_query }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_truck_model %}&truck_model={{ current_truck_model }}{% endif %}"
+                           class="px-4 py-2 bg-white border border-gray-300 rounded-md hover:bg-gray-100 transition-colors duration-300">Next</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        {% else %}
+            <p class="text-center text-xl text-gray-600 py-10 bg-white rounded-lg shadow-md">No parts found matching your criteria. Please try a different search or filter.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
