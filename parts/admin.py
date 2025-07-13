@@ -36,8 +36,9 @@ class EngineAdmin(admin.ModelAdmin):
     list_display = ('name', 'get_truck_models', 'power_output', 'fuel_type', 'emissions_standard')
     search_fields = ('name', 'truck_models__name')
     list_filter = ('fuel_type', 'emissions_standard', 'power_output')
-    filter_horizontal = ('truck_models',)  # Better UI for many-to-many fields
+    filter_horizontal = ('truck_models',) 
 
     def get_truck_models(self, obj):
         return ", ".join([tm.name for tm in obj.truck_models.all()])
     get_truck_models.short_description = 'Truck Models'
+
