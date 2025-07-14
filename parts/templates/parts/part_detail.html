@@ -1,57 +1,319 @@
-{# C:\Users\Mohammed\Documents\ECM\parts\templates\parts\part_detail.html #}
+{# templates/parts/part_detail.html #}
 {% extends 'base.html' %}
-{% load static %} {# Make sure this is loaded if you use static files in this template #}
+{% load static %}
 
 {% block title %}{{ part.name }} - European Center for Magirus{% endblock %}
 
 {% block content %}
-<div class="bg-white rounded-lg shadow-md p-8 flex flex-col md:flex-row gap-8">
-    <div class="md:w-1/2">
-        {% if part.image %}
-            <img src="{{ part.image.url }}" alt="{{ part.name }}" class="w-full h-auto rounded-lg shadow-lg">
-        {% else %}
-            {# Placeholder image: https://placehold.co/600x400/e67300/ffffff?text=No+Image+Available #}
-            <img src="https://placehold.co/600x400/e67300/ffffff?text=No+Image+Available" alt="No Image" class="w-full h-auto rounded-lg shadow-lg">
-        {% endif %}
-    </div>
-    <div class="md:w-1/2 flex flex-col justify-between">
-        <div>
-            <h1 class="text-4xl font-bold text-ecm-primary mb-4">{{ part.name }}</h1>
-            <p class="text-gray-600 text-lg mb-2">Part Number: <span class="font-semibold">{{ part.part_number }}</span></p>
-            {% if part.category %}
-                <p class="text-gray-600 text-lg mb-2">Category:
-                    <a href="{% url 'parts:part_list' %}?category={{ part.category.slug }}"
-                       class="text-ecm-accent hover:underline">{{ part.category.name }}</a>
-                </p>
-            {% endif %}
-            {% if part.truck_models.exists %}
-                <p class="text-gray-600 text-lg mb-4">Compatible Truck Models:
-                    {% for model in part.truck_models.all %}
-                        <a href="{% url 'parts:part_list' %}?truck_model={{ model.slug }}"
-                           class="text-ecm-accent hover:underline mr-1">{{ model.name }}</a>{% if not forloop.last %},{% endif %}
-                    {% endfor %}
-                </p>
-            {% endif %}
+<div class="max-w-7xl mx-auto px-4 sm:px-4 lg:px-6 py-6">
+    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-10 grid grid-cols-1 lg:grid-cols-2 gap-12">
 
-            <p class="text-gray-800 text-base leading-relaxed mb-6">{{ part.description|default:"No detailed description available for this part. Please contact us for more information." }}</p>
-        </div>
-
-        <div class="mt-auto pt-6 border-t border-gray-200">
-            <div class="flex justify-between items-center mb-4">
-                <span class="text-3xl font-bold text-ecm-accent">
-                    {% if part.price %}{{ part.price|floatformat:2 }} EGP{% else %}Price on Request{% endif %}
-                </span>
-                {% if part.stock > 0 %}
-                    <span class="text-green-600 font-semibold text-xl">In Stock ({{ part.stock_quantity }} available)</span>
-                {% else %}
-                    <span class="text-red-600 font-semibold text-xl">Out of Stock</span>
-                {% endif %}
+        <!-- Centered Image Gallery with Fixed Width -->
+<div class="w-full flex justify-center">
+    <div class="flex gap-4 justify-center w-full max-w-xl">
+        <!-- Thumbnail Gallery (Left Side) -->
+        {% if part.images.count > 1 %}
+            <div class="flex flex-col gap-2 w-16 md:w-20">
+                {% for image in part.images.all %}
+                    <div class="thumbnail-container relative">
+                        <img src="{{ image.image.url }}"
+                             alt="Thumbnail {{ forloop.counter }}"
+                             onclick="updateMainImage('{{ image.image.url }}', this)"
+                             class="thumbnail w-full h-16 md:h-20 rounded-lg object-cover border-2 border-gray-200 hover:border-ecm-accent cursor-pointer transition-all duration-200 {% if forloop.first %}border-ecm-accent{% endif %}">
+                    </div>
+                {% endfor %}
             </div>
-            <a href="{% url 'inquiry' %}"
-               class="w-full inline-block text-center bg-ecm-primary text-white font-semibold px-6 py-3 rounded-md hover:bg-opacity-90 transition-colors duration-300 text-lg">
-                Request Quote or More Info
-            </a>
+        {% endif %}
+
+        <!-- Main Image -->
+        <div class="flex-1">
+            <div class="main-image-container relative bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm max-w-md mx-auto">
+                {% with part.images.all.0 as first_image %}
+                    {% if first_image %}
+                        <img id="mainImage" 
+                             src="{{ first_image.image.url }}"
+                             alt="{{ part.name }}"
+                             class="w-3/4 h-96 md:h-[500px] lg:h-[600px] object-contain transition-all duration-300 ease-in-out hover:scale-105">                    {% else %}
+                        <img id="mainImage"
+                             src="https://placehold.co/800x600/e67300/ffffff?text=No+Image+Available"
+                             alt="No Image"
+                             class="w-1/2 h-80 object-contain transition-all duration-300 ease-in-out">
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Zoom Indicator -->
+                <div class="absolute top-4 right-4 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-sm opacity-0 hover:opacity-100 transition-opacity duration-200">
+                    <i class="fas fa-search-plus mr-1"></i>
+                    Hover to zoom
+                </div>
+            </div>
+
+            <!-- Image Counter -->
+            {% if part.images.count > 1 %}
+                <div class="text-center mt-3 text-sm text-gray-600">
+                    <span id="imageCounter">1</span> / {{ part.images.count }} images
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>
+
+
+        <!-- Part Details -->
+        <div class="flex flex-col justify-between space-y-6">
+            <div>
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4 leading-tight">{{ part.name }}</h1>
+                
+                <!-- Part Information Grid -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6 space-y-3">
+                    <div class="flex justify-between items-center border-b border-gray-200 pb-2">
+                        <span class="font-semibold text-gray-700">Part Number:</span>
+                        <span class="text-gray-900 font-mono">{{ part.part_number }}</span>
+                    </div>
+
+                    {% if part.category %}
+                        <div class="flex justify-between items-center border-b border-gray-200 pb-2">
+                            <span class="font-semibold text-gray-700">Category:</span>
+                            <a href="{% url 'parts:part_list' %}?category={{ part.category.slug }}"
+                               class="text-ecm-accent hover:underline font-medium">{{ part.category.name }}</a>
+                        </div>
+                    {% endif %}
+
+                    {% if part.truck_models.exists %}
+                        <div class="border-b border-gray-200 pb-2">
+                            <span class="font-semibold text-gray-700 block mb-1">Compatible Models:</span>
+                            <div class="flex flex-wrap gap-1">
+                                {% for model in part.truck_models.all %}
+                                    <a href="{% url 'parts:part_list' %}?truck_model={{ model.slug }}"
+                                       class="inline-block bg-ecm-accent text-white px-2 py-1 rounded text-xs hover:bg-opacity-90 transition">{{ model.name }}</a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="flex justify-between items-center">
+                        <span class="font-semibold text-gray-700">Availability:</span>
+                        {% if part.stock > 0 %}
+                            <span class="text-green-600 font-semibold flex items-center">
+                                <i class="fas fa-check-circle mr-1"></i>
+                                In Stock ({{ part.stock }})
+                            </span>
+                        {% else %}
+                            <span class="text-red-600 font-semibold flex items-center">
+                                <i class="fas fa-times-circle mr-1"></i>
+                                Out of Stock
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="prose prose-gray max-w-none">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">Product Description</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        {{ part.description|default:"No detailed description available for this part. Please contact us for more information about specifications, compatibility, and installation requirements." }}
+                    </p>
+                </div>
+            </div>
+
+            <!-- Price and Action Section -->
+            <div class="border-t border-gray-200 pt-6">
+                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+                    <div class="price-section">
+                        {% if part.price %}
+                            <div class="text-3xl font-bold text-ecm-accent">
+                                {{ part.price|floatformat:2 }} EGP
+                            </div>
+                            <div class="text-sm text-gray-600 mt-1">
+                                Price includes VAT
+                            </div>
+                        {% else %}
+                            <div class="text-2xl font-bold text-gray-700">
+                                Price on Request
+                            </div>
+                            <div class="text-sm text-gray-600 mt-1">
+                                Contact us for pricing
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="space-y-3">
+                    <a href="{% url 'inquiry' %}"
+                       class="block w-full text-center bg-ecm-primary text-white font-semibold text-lg py-4 rounded-lg shadow-lg hover:bg-opacity-90 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
+                        <i class="fas fa-envelope mr-2"></i>
+                        Request Quote & Information
+                    </a>
+                    
+                 
+                <!-- Trust Indicators -->
+                <div class="mt-6 flex flex-wrap gap-4 text-sm text-gray-600">
+                    <div class="flex items-center">
+                        <i class="fas fa-shield-alt text-green-500 mr-1"></i>
+                        Genuine Parts
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-truck text-blue-500 mr-1"></i>
+                        Fast Delivery
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-tools text-orange-500 mr-1"></i>
+                        Expenrt Support
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Enhanced JavaScript for Image Gallery -->
+<script>
+function updateMainImage(imageSrc, thumbnailElement) {
+    // Update main image
+    const mainImage = document.getElementById('mainImage');
+    mainImage.src = imageSrc;
+    
+    // Update thumbnail borders
+    const thumbnails = document.querySelectorAll('.thumbnail');
+    thumbnails.forEach(thumb => {
+        thumb.classList.remove('border-ecm-accent');
+        thumb.classList.add('border-gray-200');
+    });
+    
+    // Highlight selected thumbnail
+    thumbnailElement.classList.remove('border-gray-200');
+    thumbnailElement.classList.add('border-ecm-accent');
+    
+    // Update image counter
+    const thumbnailContainers = document.querySelectorAll('.thumbnail-container');
+    const currentIndex = Array.from(thumbnailContainers).indexOf(thumbnailElement.closest('.thumbnail-container')) + 1;
+    const counter = document.getElementById('imageCounter');
+    if (counter) {
+        counter.textContent = currentIndex;
+    }
+    
+    // Add a subtle animation effect
+    mainImage.style.opacity = '0.7';
+    setTimeout(() => {
+        mainImage.style.opacity = '1';
+    }, 150);
+}
+
+// Keyboard navigation for image gallery
+document.addEventListener('keydown', function(e) {
+    const thumbnails = document.querySelectorAll('.thumbnail');
+    const currentActive = document.querySelector('.thumbnail.border-ecm-accent');
+    
+    if (!currentActive || thumbnails.length <= 1) return;
+    
+    const currentIndex = Array.from(thumbnails).indexOf(currentActive);
+    let newIndex;
+    
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        newIndex = currentIndex > 0 ? currentIndex - 1 : thumbnails.length - 1;
+    } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault();
+        newIndex = currentIndex < thumbnails.length - 1 ? currentIndex + 1 : 0;
+    }
+    
+    if (newIndex !== undefined) {
+        thumbnails[newIndex].click();
+    }
+});
+
+// Add loading state for images
+document.addEventListener('DOMContentLoaded', function() {
+    const mainImage = document.getElementById('mainImage');
+    const thumbnails = document.querySelectorAll('.thumbnail');
+    
+    // Add loading indicator
+    mainImage.addEventListener('load', function() {
+        this.style.opacity = '1';
+    });
+    
+    // Preload thumbnail images for better performance
+    thumbnails.forEach(thumbnail => {
+        const img = new Image();
+        img.src = thumbnail.src;
+    });
+});
+</script>
+
+<!-- Custom CSS for enhanced styling -->
+<style>
+
+    .main-image-container {
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.main-image-container:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.main-image-container:hover .fas.fa-search-plus {
+    opacity: 1;
+}
+
+.thumbnail-container {
+    transition: all 0.2s ease;
+}
+
+.thumbnail:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.thumbnail-container img {
+    object-fit: cover;
+}
+
+.price-section {
+    position: relative;
+}
+
+.price-section::before {
+    content: '';
+    position: absolute;
+    left: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 100%;
+    background: linear-gradient(to bottom, #e67300, #ff8c00);
+    border-radius: 2px;
+}
+
+@media (max-width: 768px) {
+    .main-image-container {
+        max-width: 100%;
+        margin: 0 auto 1rem;
+    }
+    .thumbnail-container {
+        flex: 0 0 auto;
+    }
+    
+    .thumbnail {
+        width: 60px;
+        height: 60px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .thumbnail-container,
+    button,
+    .fas {
+        display: none !important;
+    }
+    
+    .main-image-container {
+        page-break-inside: avoid;
+        max-width: 100%;
+    }
+}
+</style>
 {% endblock %}
+

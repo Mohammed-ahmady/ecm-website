@@ -67,44 +67,32 @@
         </div>
     </section>
 
-    {# Featured Products Section #}
-    {% if featured_parts %}
-    <section class="py-16 bg-gray-100">
-        <div class="container mx-auto px-4">
-            <h2 class="text-4xl font-bold text-gray-900 text-center mb-10">Featured Parts</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                {% for part in featured_parts %}
-                <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                    {% if part.image %}
-                    <img src="{{ part.image.url }}" alt="{{ part.name }}" class="w-full h-48 object-cover object-center">
-                    {% else %}
-                    <img src="{% static 'images/magirus.jpeg' %}" alt="Part Image Placeholder" class="w-full h-48 object-cover object-center">
-                    {% endif %}
-                    <div class="p-6">
-                        <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ part.name }}</h3>
-                        <p class="text-gray-600 text-sm mb-4">{{ part.part_number }}</p>
-                        <p class="text-gray-700 font-bold text-lg mb-4">
-                            {% if part.price %}
-                                EGP {{ part.price|floatformat:2 }}
-                            {% else %}
-                                Price on Inquiry
-                            {% endif %}
-                        </p>
-                        <a href="{% url 'parts:part_detail' part.slug %}" class="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md transition-colors duration-300">
-                            View Details
-                        </a>
-                    </div>
+    {# Truck Models Section #}
+    {% if truck_models %}
+<section class="py-16 bg-gray-100">
+    <div class="container mx-auto px-4">
+        <h2 class="text-4xl font-bold text-gray-900 text-center mb-10">Our Truck Models</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {% for model in truck_models %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                {% if model.image %}
+                <img src="{{ model.image.url }}" alt="{{ model.name }}" class="w-full h-48 object-cover object-center">
+                {% else %}
+                <img src="{% static 'images/magirus.jpeg' %}" alt="Truck Model Placeholder" class="w-full h-48 object-cover object-center">
+                {% endif %}
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">{{ model.name }}</h3>
+                    <a href="{% url 'parts:part_list' %}?truck_model={{ model.slug }}" class="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md transition-colors duration-300">
+                        View Parts
+                    </a>
                 </div>
-                {% endfor %}
             </div>
-            <div class="text-center mt-12">
-                <a href="{% url 'parts:part_list' %}" class="inline-block bg-gray-800 hover:bg-gray-900 text-white font-semibold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
-                    View All Parts
-                </a>
-            </div>
+            {% endfor %}
         </div>
-    </section>
-    {% endif %}
+    </div>
+</section>
+{% endif %}
+
 <section class="bg-gray-50 py-16">
     <div class="container mx-auto">
         <h2 class="text-3xl font-semibold text-center mb-8">What Our Clients Say</h2>

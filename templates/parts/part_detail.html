@@ -1,53 +1,202 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}{{ part.name }} – Details{% endblock %}
+{% block title %}{{ part.name }} - European Center for Magirus{% endblock %}
 
 {% block content %}
+<!-- ✅ Breadcrumb Navigation -->
+<nav class="text-sm text-gray-500 mb-6">
+    <a href="{% url 'home' %}" class="hover:underline">Home</a> /
+    <a href="{% url 'parts:part_list' %}" class="hover:underline">Parts</a> /
+    <span class="text-gray-700">{{ part.name }}</span>
+</nav>
 
-<section class="bg-gray-100 py-12">
-    <div class="container mx-auto px-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-            
-            {# Part Image #}
-            <div>
-                {% if part.image %}
-                    <img src="{{ part.image.url }}" alt="{{ part.name }}" class="rounded-lg shadow-md w-full object-cover">
-                {% else %}
-                    <img src="{% static 'images/magirus.jpeg' %}" alt="No image available" class="rounded-lg shadow-md w-full object-cover">
+<div class="bg-white rounded-2xl shadow-lg p-6 md:p-10">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-start">
+
+        <!-- LEFT SECTION: Image Gallery -->
+        <div class="space-y-4">
+            <!-- Image Gallery Container -->
+            <div class="flex gap-4">
+                <!-- Thumbnails Column -->
+                {% if part.images.count > 1 %}
+                    <div class="flex flex-col gap-2 flex-shrink-0">
+                        {% for image in part.images.all %}
+                            <img loading="lazy" src="{{ image.image.url }}"
+                                alt="Thumbnail {{ forloop.counter }}"
+                                onclick="updateMainImage('{{ image.image.url }}', this)"
+                                class="thumbnail w-16 h-16 md:w-20 md:h-20 rounded-lg object-cover border-2 border-gray-200 hover:border-orange-600 cursor-pointer transition-all duration-200 {% if forloop.first %}border-orange-600{% endif %}">
+                        {% endfor %}
+                    </div>
                 {% endif %}
+
+                <!-- Main Image -->
+                <div class="relative bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm flex-1">
+                    {% with part.images.all.0 as first_image %}
+                        <img id="mainImage" loading="lazy"
+                             src="{{ first_image.image.url }}"
+                             alt="{{ part.name }}"
+                             class="w-full h-64 md:h-80 lg:h-96 object-contain transition-all duration-300 ease-in-out hover:scale-105 cursor-zoom-in">
+                    {% endwith %}
+                </div>
             </div>
 
-            {# Part Details #}
-            <div>
-                <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ part.name }}</h1>
-                <p class="text-gray-600 mb-2"><strong>Part Number:</strong> {{ part.part_number }}</p>
-                {% if part.price %}
-                    <p class="text-2xl text-orange-600 font-bold mb-4">EGP {{ part.price|floatformat:2 }}</p>
-                {% else %}
-                    <p class="text-xl text-gray-700 mb-4">Price available on inquiry</p>
-                {% endif %}
+            {% if part.images.count > 1 %}
+                <div class="text-center text-sm text-gray-600">
+                    <span id="imageCounter">1</span> / {{ part.images.count }} images
+                </div>
+            {% endif %}
+        </div>
 
-                <p class="text-gray-700 mb-6">{{ part.description }}</p>
+        <!-- ✅ RIGHT SECTION: Product Details & Buttons -->
+        <div class="flex flex-col justify-between space-y-6 md:sticky md:top-24">
+            <div>
+                <h1 class="text-2xl md:text-3xl lg:text-4xl font-extrabold text-gray-900 mb-6 leading-tight">{{ part.name }}</h1>
+
+                <!-- Price Section - Moved up for better prominence -->
+                <div class="mb-8">
+                    {% if part.price %}
+                        <div class="text-4xl md:text-5xl font-bold text-orange-600 mb-2">
+                            EGP {{ part.price|floatformat:2 }}
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            Price includes VAT
+                        </div>
+                    {% else %}
+                        <div class="text-3xl md:text-4xl font-bold text-gray-700 mb-2">
+                            Price on Request
+                        </div>
+                        <div class="text-sm text-gray-600">
+                            Contact us for pricing
+                        </div>
+                    {% endif %}
+                </div>
+
+            <div class="bg-gray-50 rounded-lg p-4 mb-6 space-y-3">
+                <div class="flex justify-between items-center border-b border-gray-200 pb-2">
+                    <span class="font-semibold text-gray-700">Part Number:</span>
+                    <span class="text-gray-900 font-mono">{{ part.part_number }}</span>
+                </div>
+
+                {% if part.category %}
+                    <div class="flex justify-between items-center border-b border-gray-200 pb-2">
+                        <span class="font-semibold text-gray-700">Category:</span>
+                        <a href="{% url 'parts:part_list' %}?category={{ part.category.slug }}"
+                           class="text-orange-600 hover:underline font-medium">{{ part.category.name }}</a>
+                    </div>
+                {% endif %}
 
                 {% if part.truck_models.exists %}
-                    <p class="text-sm text-gray-500 mb-4"><strong>Compatible Truck Models:</strong> 
-                        {{ part.truck_models.all|join:", " }}
-                    </p>
+                    <div class="flex justify-between items-center border-b border-gray-200 pb-2">
+                        <span class="font-semibold text-gray-700">Compatible Models:</span>
+                        <div class="flex flex-wrap gap-1 justify-end">
+                            {% for model in part.truck_models.all %}
+                                <a href="{% url 'parts:part_list' %}?truck_model={{ model.slug }}"
+                                   class="inline-block bg-orange-600 text-white px-2 py-1 rounded text-xs hover:bg-opacity-90 transition">{{ model.name }}</a>
+                            {% endfor %}
+                        </div>
+                    </div>
                 {% endif %}
+
+                <div class="flex justify-between items-center transition-all duration-500">
+                    <span class="font-semibold text-gray-700">Availability:</span>
+                    {% if part.stock > 0 %}
+                        <span class="text-green-600 font-semibold flex items-center animate-pulse">
+                            <i class="fas fa-check-circle mr-1"></i> In Stock ({{ part.stock }})
+                        </span>
+                    {% else %}
+                        <span class="text-red-600 font-semibold flex items-center">
+                            <i class="fas fa-times-circle mr-1"></i> Out of Stock
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="prose prose-gray max-w-none mb-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">Product Description</h3>
+                <p class="text-gray-700 leading-relaxed">
+                    {{ part.description|default:"No detailed description available for this part. Please contact us for more information." }}
+                </p>
+            </div>
+        </div>
+
+        <!-- Action Buttons Section -->
+        <div class="border-t border-gray-200 pt-8">
+            <div class="space-y-6">
                 <form method="post" action="{% url 'parts:add_to_cart' part.id %}">
                     {% csrf_token %}
-                    <button type="submit" class="inline-block bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded shadow transition duration-300">Add to Cart</button>
+                    <button type="submit" class="block w-full text-center bg-orange-600 text-white font-semibold text-lg py-4 rounded-lg shadow-lg hover:bg-orange-700 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
+                        <i class="fas fa-shopping-cart mr-2"></i> Add to Cart
+                    </button>
                 </form>
-
-                <br>
-                <a href="{% url 'inquiry' %}" class="inline-block bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded shadow transition duration-300">
-                    Inquire About This Part
+                <a href="{% url 'inquiry' %}"
+                   class="block w-full text-center bg-ecm-primary text-white font-semibold text-lg py-4 rounded-lg shadow-lg hover:bg-ecm-primary-hover hover:shadow-xl transition-all duration-300 transform hover:-translate-y-0.5">
+                    <i class="fas fa-envelope mr-2"></i> Request Quote & Info
                 </a>
-               
+            </div>
 
+            <!-- Features Section with better visual separation -->
+            <div class="border-t border-gray-100 pt-6 mt-8">
+                <div class="flex flex-wrap gap-6 text-sm text-gray-600">
+                    <div class="flex items-center"><i class="fas fa-shield-alt mr-3" style="color: #16a34a !important;"></i>&nbsp; Genuine Parts</div>
+                    <div class="flex items-center"><i class="fas fa-truck mr-3" style="color: #3b82f6 !important;"></i>&nbsp; Fast Delivery</div>
+                    <div class="flex items-center"><i class="fas fa-tools mr-3 text-orange-500"></i>&nbsp; Expert Support</div>
+                </div>
             </div>
         </div>
     </div>
-</section>
+</div>
+</div>
+
+<!-- ✅ Zoom Modal -->
+<div id="imageModal" class="fixed inset-0 bg-black bg-opacity-75 items-center justify-center z-50 hidden">
+    <img id="zoomedImage" class="max-h-[90vh] max-w-[90vw] rounded-lg shadow-xl" alt="Zoomed Image">
+</div>
+
+<!-- ✅ Scripts -->
+<script>
+function updateMainImage(imageSrc, thumbnailElement) {
+    const mainImage = document.getElementById('mainImage');
+    mainImage.src = imageSrc;
+
+    const thumbnails = document.querySelectorAll('.thumbnail');
+    thumbnails.forEach(thumb => thumb.classList.replace('border-orange-600', 'border-gray-200'));
+    thumbnailElement.classList.replace('border-gray-200', 'border-orange-600');
+
+    const index = Array.from(thumbnails).indexOf(thumbnailElement) + 1;
+    const counter = document.getElementById('imageCounter');
+    if (counter) counter.textContent = index;
+
+    mainImage.style.opacity = '0.7';
+    setTimeout(() => { mainImage.style.opacity = '1'; }, 150);
+}
+
+document.addEventListener('keydown', function(e) {
+    const thumbnails = document.querySelectorAll('.thumbnail');
+    const active = document.querySelector('.thumbnail.border-orange-600');
+    if (!active || thumbnails.length <= 1) return;
+
+    const i = Array.from(thumbnails).indexOf(active);
+    let n;
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+        e.preventDefault(); n = i > 0 ? i - 1 : thumbnails.length - 1;
+    } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+        e.preventDefault(); n = i < thumbnails.length - 1 ? i + 1 : 0;
+    }
+    if (n !== undefined) thumbnails[n].click();
+});
+
+// ✅ Zoom modal
+document.getElementById('mainImage').addEventListener('click', (event) => {
+    const modal = document.getElementById('imageModal');
+    document.getElementById('zoomedImage').src = event.target.src;
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+});
+document.getElementById('imageModal').addEventListener('click', () => {
+    const modal = document.getElementById('imageModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+});
+</script>
 {% endblock %}

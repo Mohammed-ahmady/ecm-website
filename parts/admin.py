@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Category, TruckModel, Part, Inquiry, Engine
+from .models import Category, TruckModel, Part, Inquiry, Engine, PartImage
+from django.db import models
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -7,11 +8,22 @@ class CategoryAdmin(admin.ModelAdmin):
     list_display = ('name', 'slug')
     search_fields = ('name',)
 
+class PartImageInline(admin.TabularInline):  # or admin.StackedInline
+    model = PartImage
+    extra = 1
+
+
 @admin.register(TruckModel)
 class TruckModelAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('name',)}
-    list_display = ('name', 'manufacturer', 'year_range')
+    list_display = ('name', 'manufacturer', 'year_range', 'has_image')
     search_fields = ('name', 'manufacturer')
+    fields = ('name', 'slug', 'manufacturer', 'year_range', 'description', 'image')
+    
+    def has_image(self, obj):
+        return bool(obj.image)
+    has_image.boolean = True
+    has_image.short_description = 'Has Image'
   
 
 @admin.register(Part)
@@ -22,6 +34,8 @@ class PartAdmin(admin.ModelAdmin):
     list_editable = ('is_active', 'stock')
     search_fields = ('name', 'part_number')
     filter_horizontal = ('truck_models',)
+    inlines = [PartImageInline]
+
 
 @admin.register(Inquiry)
 class InquiryAdmin(admin.ModelAdmin):

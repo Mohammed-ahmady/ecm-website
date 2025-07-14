@@ -1,7 +1,7 @@
 # C:\Users\Mohammed\Documents\ECM\parts\models.py
-
+import os
 from django.db import models
-from django.utils.text import slugify # For auto-generating slugs
+from django.utils.text import slugify 
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -24,6 +24,8 @@ class TruckModel(models.Model):
     slug = models.SlugField(max_length=100, unique=True, blank=True)
     manufacturer = models.CharField(max_length=100, default='Magirus') # Assuming Magirus for now
     year_range = models.CharField(max_length=50, blank=True, null=True, help_text="e.g., 1980s, 2000-2010")
+    image = models.ImageField(upload_to='truck_models/', blank=True, null=True, help_text="Image of the truck model")
+    description = models.TextField(blank=True, null=True, help_text="Brief description of the truck model")
 
     class Meta:
         verbose_name = "Truck Model"
@@ -71,6 +73,24 @@ class Part(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.part_number})"
+    
+
+def part_image_upload_to(instance, filename):
+    # Get the part name or slug
+    part_slug = slugify(instance.part.name)
+    # Build the path: "parts_images/<part-name>/<original_filename>"
+    return os.path.join('parts_images', part_slug, filename)
+
+
+# New model for storing part images
+# This allows multiple images per part, if needed
+class PartImage(models.Model):
+    part = models.ForeignKey(Part, related_name='images', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to=part_image_upload_to)
+    
+    def __str__(self):
+        return f"Image for {self.part.name}"
+
 
 class Cart:
     def __init__(self, request):

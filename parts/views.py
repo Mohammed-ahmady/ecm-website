@@ -6,7 +6,7 @@ from django.urls import reverse_lazy
 from django.contrib import messages
 
 from .models import Part, Category, TruckModel, Inquiry, Cart
-from .forms import InquiryForm # Import the form you just created
+from .forms import InquiryForm 
 
 
 
@@ -99,6 +99,7 @@ class InquiryCreateView(CreateView):
 
 # Function-based view for the home page (can be replaced by TemplateView)
 def home_view(request):
-    # You might want to display some featured parts or categories here
-    featured_parts = Part.objects.filter(is_active=True).order_by('-created_at')[:6] # Example: show 6 active parts
-    return render(request, 'home.html', {'featured_parts': featured_parts})
+    truck_models = TruckModel.objects.all()
+    return render(request, 'home.html', {
+        'truck_models': truck_models,
+    })

@@ -26,7 +26,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['8000-it07ktuy96andhyjc3gfx-8b39cdbf.manusvm.computer', 'localhost', '127.0.0.1']
 
 
 # Application definition
