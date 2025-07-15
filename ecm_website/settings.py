@@ -9,24 +9,40 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-from decouple import config
+import os
+import environ
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
+# Environment variables
+env = environ.Env(
+    DEBUG=(bool, False)
+)
+environ.Env.read_env(BASE_DIR / '.env')
 
 # SECURITY WARNING: keep the secret key used in production secret!
-
-SECRET_KEY = config('SECRET_KEY')
+SECRET_KEY = env('SECRET_KEY', default='django-insecure-z@g=x)nh0t^z*b$y6+b3lg%3u_2w&gns%*q^t_f06)2g+m9)q_')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['8000-it07ktuy96andhyjc3gfx-8b39cdbf.manusvm.computer', 'localhost', '127.0.0.1']
+# Allowed hosts for ngrok and local development
+ALLOWED_HOSTS = [
+    'localhost', 
+    '127.0.0.1',
+    'cowbird-advanced-infinitely.ngrok-free.app',
+    '.ngrok-free.app',
+    '.ngrok.io',
+]
+
+# CSRF trusted origins
+CSRF_TRUSTED_ORIGINS = [
+    'https://cowbird-advanced-infinitely.ngrok-free.app',
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+]
 
 
 # Application definition
@@ -56,13 +72,14 @@ ROOT_URLCONF = 'ecm_website.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ BASE_DIR / 'templates' ],  # Points to your project's templates folder
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'ecm_website.context_processors.cart_context',
             ],
         },
     },
@@ -72,23 +89,12 @@ WSGI_APPLICATION = 'ecm_website.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('DATABASE_NAME'),
-        'USER': config('DATABASE_USER'),
-        'PASSWORD': config('DATABASE_PASSWORD'),
-        'HOST': config('DATABASE_HOST', default='localhost'),
-        'PORT': config('DATABASE_PORT', default=''),  
-    }
+    'default': env.db_url('DATABASE_URL', default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'))
 }
 
 
 # Password validation
-# https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -106,32 +112,57 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
-
 LANGUAGE_CODE = 'en-us'
-
 TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
-
 STATIC_URL = 'ecm_website/static/'
 STATICFILES_DIRS = [
-    BASE_DIR / 'ecm_website/static', # Points to your project's static folder
+    BASE_DIR / 'ecm_website/static',
 ]
-STATIC_ROOT = BASE_DIR / 'staticfiles' # For production deployment
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-import os
-
+# Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# =============================================================================
+# DEVELOPMENT MEMORY OPTIMIZATION SETTINGS
+# =============================================================================
+if DEBUG:
+    # Disable Django debug toolbar if installed to save memory
+    INTERNAL_IPS = []
+    
+    # Optimize session settings
+    SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+    SESSION_COOKIE_AGE = 3600  # 1 hour instead of 2 weeks
+    
+    # Reduce logging verbosity
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'handlers': {
+            'file': {
+                'level': 'ERROR',
+                'class': 'logging.FileHandler',
+                'filename': 'django_errors.log',
+            },
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['file'],
+                'level': 'ERROR',
+                'propagate': True,
+            },
+        },
+    }
+    
+    # Optimize database queries
+    DATABASES['default']['CONN_MAX_AGE'] = 0  # Don't persist connections

@@ -1,0 +1,46 @@
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+}
+
+/* Back to top button styles */
+.back-to-top {
+  position: fixed;
+  bottom: 4rem;
+  left: 4rem;
+  display: inline-block;
+  padding: 1rem;
+  background: #9A3412;
+  color: white;
+  text-decoration: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 9999;
+  text-align: center;
+  font-size: 1.25rem;
+  line-height: 1;
+  animation: float 3s ease-in-out infinite;
+}
+
+.back-to-top:hover {
+  background: #7C2D12;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+}
+
+.back-to-top.show {
+  opacity: 0.4;
+  pointer-events: auto;
+}
+
+.back-to-top.show.focused {
+  opacity: 1;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}

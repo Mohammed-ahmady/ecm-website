@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, TruckModel, Part, Inquiry, Engine, PartImage
+from .models import Category, TruckModel, Part, Inquiry, Engine, PartImage, CartItem, Order, OrderItem
 from django.db import models
 
 @admin.register(Category)
@@ -55,4 +55,41 @@ class EngineAdmin(admin.ModelAdmin):
     def get_truck_models(self, obj):
         return ", ".join([tm.name for tm in obj.truck_models.all()])
     get_truck_models.short_description = 'Truck Models'
+
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 0
+    readonly_fields = ('total_price',)
+
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('order_id', 'customer_name', 'customer_email', 'status', 'total_amount', 'created_at')
+    list_filter = ('status', 'created_at', 'country')
+    search_fields = ('order_id', 'customer_name', 'customer_email', 'customer_phone')
+    readonly_fields = ('order_id', 'created_at', 'updated_at')
+    inlines = [OrderItemInline]
+    
+    fieldsets = (
+        ('Order Information', {
+            'fields': ('order_id', 'status', 'total_amount', 'created_at', 'updated_at')
+        }),
+        ('Customer Information', {
+            'fields': ('customer_name', 'customer_email', 'customer_phone')
+        }),
+        ('Shipping Information', {
+            'fields': ('shipping_address', 'city', 'postal_code', 'country')
+        }),
+        ('Additional Information', {
+            'fields': ('notes',)
+        }),
+    )
+
+
+@admin.register(CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    list_display = ('session_key', 'part', 'quantity', 'total_price', 'added_at')
+    list_filter = ('added_at',)
+    search_fields = ('session_key', 'part__name', 'part__part_number')
 

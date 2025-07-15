@@ -1,65 +1,191 @@
-# C:\Users\Mohammed\Documents\ECM\parts\views.py
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views.generic import ListView, DetailView, CreateView, TemplateView # Make sure TemplateView is imported
-from django.db.models import Q
+from django.views.generic import ListView, DetailView, CreateView
 from django.urls import reverse_lazy
 from django.contrib import messages
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
+import json
 
-from .models import Part, Category, TruckModel, Inquiry, Cart
-from .forms import InquiryForm 
+from .models import Part, Category, TruckModel, Inquiry, CartItem, Order, OrderItem
+from .forms import InquiryForm
+from .utils import ModernCart, get_cart_response_data, is_ajax_request, get_search_queryset
 
-
-
+@require_POST
 def add_to_cart(request, part_id):
-    cart = Cart(request)
+    """
+    Add a part to the shopping cart.
+    
+    Handles both AJAX and form submissions. Increases quantity if part already exists in cart.
+    
+    Args:
+        request: HTTP request object
+        part_id: ID of the part to add to cart
+        
+    Returns:
+        JsonResponse for AJAX requests or redirect for form submissions
+    """
+    cart = ModernCart(request)
     part = get_object_or_404(Part, id=part_id)
-    cart.add(part=part)
-    return redirect("parts:cart_detail")
+    
+    if request.headers.get('Content-Type') == 'application/json':
+        data = json.loads(request.body)
+        quantity = int(data.get('quantity', 1))
+    else:
+        quantity = int(request.POST.get('quantity', 1))
+    
+    cart_item = cart.add(part=part, quantity=quantity)
+    
+    if is_ajax_request(request):
+        cart_count = CartItem.objects.filter(session_key=request.session.session_key).count()
+        return JsonResponse({
+            'success': True,
+            'message': f'{part.name} added to cart!',
+            'cart_count': cart_count,
+            'cart_total_items': cart.get_total_items(),
+            'cart_total_price': float(cart.get_total_price()),
+            'item_total_price': float(cart_item.total_price)
+        })
+    
+    messages.success(request, f'{part.name} added to cart!')
+    return redirect('parts:cart_detail')
+
 
 def cart_detail(request):
-    cart = Cart(request)
-    return render(request, "cart/cart_detail.html", {"cart": cart})
+    """
+    Display the shopping cart with all items and totals.
+    
+    Args:
+        request: HTTP request object
+        
+    Returns:
+        Rendered cart detail template with cart items and totals
+    """
+    cart = ModernCart(request)
+    cart_items = cart.get_items()
+    total_price = cart.get_total_price()
+    
+    context = {
+        'cart_items': cart_items,
+        'total_price': total_price,
+        'total_items': cart.get_total_items(),
+    }
+    return render(request, 'cart/cart_detail.html', context)
+
+
+@require_POST
+def update_cart(request, part_id):
+    cart = ModernCart(request)
+    part = get_object_or_404(Part, id=part_id)
+    quantity = int(request.POST.get('quantity', 0))
+    
+    cart.update(part, quantity)
+    
+    if is_ajax_request(request):
+        return JsonResponse({
+            'success': True,
+            **get_cart_response_data(cart)
+        })
+    
+    return redirect('parts:cart_detail')
+
 
 def remove_from_cart(request, part_id):
-    cart = Cart(request)
+    """
+    Remove a part completely from the shopping cart.
+    
+    Args:
+        request: HTTP request object
+        part_id: ID of the part to remove from cart
+        
+    Returns:
+        JsonResponse for AJAX requests or redirect for form submissions
+    """
+    cart = ModernCart(request)
     part = get_object_or_404(Part, id=part_id)
     cart.remove(part)
-    return redirect("parts:cart_detail")
+    
+    if is_ajax_request(request):
+        return JsonResponse({
+            'success': True,
+            'message': f'{part.name} removed from cart!',
+            **get_cart_response_data(cart)
+        })
+    
+    messages.success(request, f'{part.name} removed from cart!')
+    return redirect('parts:cart_detail')
 
 
-# Function-based view for the checkout page
 def checkout_page(request):
-    return render(request, 'cart/checkout.html')  # you can change this path later
+    """
+    Handle the checkout process for placing orders.
+    
+    GET: Display checkout form with cart items
+    POST: Process order creation and clear cart
+    
+    Args:
+        request: HTTP request object
+        
+    Returns:
+        Checkout form template or order success page
+    """
+    cart = ModernCart(request)
+    cart_items = cart.get_items()
+    
+    if not cart_items.exists():
+        messages.warning(request, 'Your cart is empty!')
+        return redirect('parts:part_list')
+    
+    total_price = cart.get_total_price()
+    
+    if request.method == 'POST':
+        try:
+            order = Order.objects.create(
+                customer_name=request.POST['customer_name'],
+                customer_email=request.POST['customer_email'],
+                customer_phone=request.POST['customer_phone'],
+                shipping_address=request.POST['shipping_address'],
+                city=request.POST['city'],
+                postal_code=request.POST.get('postal_code', ''),
+                country=request.POST.get('country', 'Egypt'),
+                total_amount=total_price,
+                notes=request.POST.get('notes', '')
+            )
+            
+            for cart_item in cart_items:
+                OrderItem.objects.create(
+                    order=order,
+                    part=cart_item.part,
+                    quantity=cart_item.quantity,
+                    price=cart_item.part.price or 0
+                )
+            
+            cart.clear()
+            
+            messages.success(request, f'Order #{order.order_id} placed successfully! We will contact you soon.')
+            return render(request, 'cart/order_success.html', {'order': order})
+            
+        except Exception as e:
+            messages.error(request, 'There was an error processing your order. Please try again.')
+    
+    context = {
+        'cart_items': cart_items,
+        'total_price': total_price,
+        'total_items': cart.get_total_items(),
+    }
+    return render(request, 'cart/checkout.html', context)
 
-# View for listing parts with search and filters
+
 class PartListView(ListView):
+    """View for listing parts with search and filters"""
     model = Part
-    template_name = 'parts/part_list.html' # This template needs to be created
+    template_name = 'parts/part_list.html'
     context_object_name = 'parts'
-    paginate_by = 12 # Show 12 parts per page
+    paginate_by = 12
 
     def get_queryset(self):
-        queryset = super().get_queryset().filter(is_active=True) # Assuming 'is_active' field on Part
-        query = self.request.GET.get('q')
-        category_slug = self.request.GET.get('category')
-        truck_model_slug = self.request.GET.get('truck_model')
-        
-        if query:
-            queryset = queryset.filter(
-                Q(name__icontains=query) |
-                Q(part_number__icontains=query) |
-                Q(description__icontains=query) |
-                Q(category__name__icontains=query) |
-                Q(truck_models__name__icontains=query)
-            ).distinct() # Use .distinct() to avoid duplicate results if a part matches multiple criteria
-
-        if category_slug:
-            queryset = queryset.filter(category__slug=category_slug)
-
-        if truck_model_slug:
-            queryset = queryset.filter(truck_models__slug=truck_model_slug)
-
-        return queryset
+        queryset = super().get_queryset().filter(is_active=True)
+        return get_search_queryset(queryset, self.request.GET)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -70,8 +196,8 @@ class PartListView(ListView):
         context['current_truck_model'] = self.request.GET.get('truck_model', '')
         return context
 
-# View for a single part's details
 class PartDetailView(DetailView):
+    """View for a single part's details"""
     model = Part
     template_name = 'parts/part_detail.html'
     context_object_name = 'part'
@@ -79,15 +205,15 @@ class PartDetailView(DetailView):
     slug_url_kwarg = 'slug'
 
     def get_queryset(self):
-        # Ensure only active parts are viewable
         return super().get_queryset().filter(is_active=True)
 
-# View for the inquiry form
+
 class InquiryCreateView(CreateView):
+    """View for the inquiry form"""
     model = Inquiry
     form_class = InquiryForm
-    template_name = 'inquiry.html' # This will be a project-level template
-    success_url = reverse_lazy('inquiry') # Redirect back to the same page or a dedicated success page
+    template_name = 'inquiry.html'
+    success_url = reverse_lazy('inquiry')
 
     def form_valid(self, form):
         messages.success(self.request, "Your inquiry has been submitted successfully! We will get back to you shortly.")
@@ -97,8 +223,9 @@ class InquiryCreateView(CreateView):
         messages.error(self.request, "There was an error with your submission. Please correct the highlighted fields.")
         return super().form_invalid(form)
 
-# Function-based view for the home page (can be replaced by TemplateView)
+
 def home_view(request):
+    """Function-based view for the home page"""
     truck_models = TruckModel.objects.all()
     return render(request, 'home.html', {
         'truck_models': truck_models,

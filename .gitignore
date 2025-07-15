@@ -15,9 +15,15 @@ env/
 *.sqlite3
 db.sqlite3
 *.log
+staticfiles/
+static/admin/
+static/debug_toolbar/
 
 # IDEs
 .vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
 .idea/
 
 # System files
@@ -29,3 +35,54 @@ Thumbs.db
 */migrations/*.pyc
 */migrations/*.pyo
 */migrations/*.pyd
+
+# Memory-intensive files
+media/
+node_modules/
+*.map
+*.min.js
+*.min.css
+coverage/
+.coverage
+htmlcov/
+.tox/
+.pytest_cache/
+
+# Large image files (keep smaller ones)
+*.raw
+*.tiff
+*.psd
+*.eps
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.wheel/
+
+# OS specific
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+$RECYCLE.BIN/
+
+# Project specific
+django_errors.log
+.vscode/
+.idea/
+
+# Media files (optional - comment out if you want to track uploads)
+# media/
+
+# Node modules
+node_modules/
+
+# Generated files
+staticfiles/

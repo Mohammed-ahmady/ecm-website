@@ -1,7 +1,9 @@
-# C:\Users\Mohammed\Documents\ECM\parts\models.py
 import os
 from django.db import models
 from django.utils.text import slugify 
+from django.contrib.auth.models import User
+from django.utils import timezone
+import uuid
 
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -155,3 +157,69 @@ class Inquiry(models.Model):
 
     def __str__(self):
         return f"Inquiry from {self.customer_name} ({self.customer_email})"
+
+
+class CartItem(models.Model):
+    """Database-backed cart item for better persistence"""
+    session_key = models.CharField(max_length=40)
+    part = models.ForeignKey(Part, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    added_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ('session_key', 'part')
+    
+    def __str__(self):
+        return f"{self.part.name} (x{self.quantity})"
+    
+    @property
+    def total_price(self):
+        return self.part.price * self.quantity if self.part.price else 0
+
+
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('confirmed', 'Confirmed'),
+        ('processing', 'Processing'),
+        ('shipped', 'Shipped'),
+        ('delivered', 'Delivered'),
+        ('cancelled', 'Cancelled'),
+    ]
+    
+    order_id = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    customer_name = models.CharField(max_length=200)
+    customer_email = models.EmailField()
+    customer_phone = models.CharField(max_length=20)
+    shipping_address = models.TextField()
+    city = models.CharField(max_length=100)
+    postal_code = models.CharField(max_length=20, blank=True)
+    country = models.CharField(max_length=100, default='Egypt')
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    notes = models.TextField(blank=True, help_text="Special instructions or notes")
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"Order {self.order_id} - {self.customer_name}"
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
+    part = models.ForeignKey(Part, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)  # Price at time of order
+    
+    def __str__(self):
+        return f"{self.part.name} (x{self.quantity}) - Order {self.order.order_id}"
+    
+    @property
+    def total_price(self):
+        return self.price * self.quantity

@@ -63,35 +63,41 @@
     {% if parts %}
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {% for part in parts %}
-          <div class="bg-white rounded-2xl shadow-md hover:shadow-lg transition duration-300 flex flex-col justify-between border border-gray-200 overflow-hidden">
-            {% if part.image %}
-              <img src="{{ part.image.url }}" alt="{{ part.name }}" class="w-full h-48 object-contain bg-white p-4" loading="lazy">
-            {% else %}
-              <img src="{% static 'images/magirus.jpeg' %}" alt="Placeholder" class="w-full h-48 object-contain bg-white p-4">
-            {% endif %}
+          <div class="bg-white rounded-2xl shadow-md hover:shadow-lg transition duration-300 flex flex-col justify-between border border-gray-200 overflow-hidden h-full">
+            <div class="flex flex-col flex-grow">
+              {% if part.image %}
+                <img src="{{ part.image.url }}" alt="{{ part.name }}" class="w-full h-48 object-contain bg-white p-4" loading="lazy">
+              {% else %}
+                <img src="{% static 'images/magirus.jpeg' %}" alt="Placeholder" class="w-full h-48 object-contain bg-white p-4">
+              {% endif %}
 
-            <div class="p-4 flex flex-col flex-grow">
-              <p class="text-xs font-semibold uppercase text-gray-500 mb-1">{{ part.part_number }}</p>
-              <h3 class="text-lg font-medium text-gray-800 mb-2 line-clamp-2">{{ part.name }}</h3>
+              <div class="p-4 flex flex-col flex-grow">
+                <p class="text-xs font-semibold uppercase text-gray-500 mb-1">{{ part.part_number }}</p>
+                <h3 class="text-lg font-medium text-gray-800 mb-2 flex-grow min-h-[3.5rem] flex items-start">{{ part.name }}</h3>
 
-              <p class="text-orange-600 text-base font-semibold mb-4">
-                {% if part.price %}
-                  EGP {{ part.price|floatformat:2 }}
-                {% else %}
-                  Price on Inquiry
-                {% endif %}
-              </p>
+                <div class="mt-auto">
+                  <p class="text-orange-600 text-base font-semibold mb-4">
+                    {% if part.price %}
+                      EGP {{ part.price|floatformat:2 }}
+                    {% else %}
+                      Price on Inquiry
+                    {% endif %}
+                  </p>
 
-              <form method="post" action="{% url 'parts:add_to_cart' part.id %}" class="mb-2">
-                {% csrf_token %}
-                <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-md transition font-medium">
-                  Add to Cart
-                </button>
-              </form>
+                  <div class="space-y-2">
+                    <form method="post" action="{% url 'parts:add_to_cart' part.id %}" class="add-to-cart-form">
+                      {% csrf_token %}
+                      <button type="submit" class="add-to-cart-btn w-full bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-md transition font-medium">
+                        Add to Cart
+                      </button>
+                    </form>
 
-              <a href="{% url 'parts:part_detail' part.slug %}" class="w-full block text-center text-sm font-semibold border border-orange-600 text-orange-600 hover:bg-orange-50 py-2 rounded-md transition">
-                View Details
-              </a>
+                    <a href="{% url 'parts:part_detail' part.slug %}" class="w-full block text-center text-sm font-semibold border border-orange-600 text-orange-600 hover:bg-orange-50 py-2 rounded-md transition">
+                      View Details
+                    </a>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         {% endfor %}
@@ -116,5 +122,102 @@
     {% endif %}
   </div>
 </section>
+
+<script>
+// Amazon-style Add to Cart notification for parts list
+document.addEventListener('DOMContentLoaded', function() {
+    const addToCartForms = document.querySelectorAll('.add-to-cart-form');
+    
+    addToCartForms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const addToCartBtn = this.querySelector('.add-to-cart-btn');
+            
+            fetch(this.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Added to cart', addToCartBtn);
+                    
+                    // Update cart count in navigation if exists
+                    const cartCounter = document.getElementById('cart-count');
+                    const mobileCartCounter = document.getElementById('mobile-cart-count');
+                    if (cartCounter && data.cart_count !== undefined) {
+                        cartCounter.textContent = data.cart_count;
+                    }
+                    if (mobileCartCounter && data.cart_count !== undefined) {
+                        mobileCartCounter.textContent = data.cart_count;
+                    }
+                } else {
+                    showNotification('Failed to add to cart', addToCartBtn, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Failed to add to cart', addToCartBtn, 'error');
+            });
+        });
+    });
+    
+    function showNotification(message, buttonElement, type = 'success') {
+        if (!buttonElement) return;
+        
+        // Get button position
+        const btnRect = buttonElement.getBoundingClientRect();
+        
+        const notification = document.createElement('div');
+        notification.className = `fixed z-50 px-4 py-3 rounded-lg shadow-xl transform transition-all duration-500 scale-0 ${
+            type === 'success' ? 'bg-green-600 text-white border-2 border-green-500' : 'bg-red-600 text-white border-2 border-red-500'
+        }`;
+        
+        // Position it over the button with better centering
+        notification.style.left = `${btnRect.left + (btnRect.width / 2) - 100}px`;
+        notification.style.top = `${btnRect.top + btnRect.height + 15}px`;
+        notification.style.minWidth = '200px';
+        notification.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.3)';
+        
+        notification.innerHTML = `
+            <div class="flex items-center justify-center text-sm font-semibold">
+                <div class="flex items-center justify-center w-5 h-5 rounded-full ${type === 'success' ? 'bg-white text-green-600' : 'bg-white text-red-600'} mr-3">
+                    <i class="fas ${type === 'success' ? 'fa-check' : 'fa-times'} text-xs"></i>
+                </div>
+                <span>${message}</span>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        // Amazon-style animation with bounce effect
+        setTimeout(() => {
+            notification.classList.remove('scale-0');
+            notification.classList.add('scale-110');
+            setTimeout(() => {
+                notification.classList.remove('scale-110');
+                notification.classList.add('scale-100');
+            }, 150);
+        }, 100);
+        
+        // Fade out after 2.5 seconds
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transform = 'scale(0.8) translateY(-10px)';
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 400);
+        }, 2500);
+    }
+});
+</script>
 
 {% endblock %}

@@ -6,10 +6,10 @@ app_name = 'parts'
 
 urlpatterns = [
     path('', PartListView.as_view(), name='part_list'),
-    path('add/<int:part_id>/', views.add_to_cart, name='add_to_cart'),
+    path('cart/add/<int:part_id>/', views.add_to_cart, name='add_to_cart'),
     path('cart/', views.cart_detail, name='cart_detail'),
-    path('remove/<int:part_id>/', views.remove_from_cart, name='remove_from_cart'),
+    path('cart/update/<int:part_id>/', views.update_cart, name='update_cart'),
+    path('cart/remove/<int:part_id>/', views.remove_from_cart, name='remove_from_cart'),
     path('checkout/', views.checkout_page, name='checkout_page'),
     path('<slug:slug>/', PartDetailView.as_view(), name='part_detail'),
-      
 ]
