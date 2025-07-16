@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Your Source for Magirus Parts{% endblock %}
+
+{% block content %}
+<main class="relative">
+    {# Hero Section #}
+    <section class="relative bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700 text-white py-20 md:py-32 overflow-hidden">
+        <div class="absolute inset-0 z-0 opacity-20" style="background-image: url('{% static 'images/truck.jpg' %}'); background-size: cover; background-position: center;"></div>
+        <div class="container mx-auto px-4 relative z-10 text-center">
+            <h1 class="text-4xl md:text-6xl font-extrabold leading-tight mb-6 animate-fade-in-up">
+                Authentic <span class="text-orange-500 text-5xl md:text-7xl">Magirus</span> Parts
+            </h1>
+
+
+            <p class="text-lg md:text-xl max-w-2xl mx-auto mb-8 opacity-90 animate-fade-in-up delay-200">
+                Reliable spare parts for your Magirus trucks, ensuring peak performance and longevity.
+            </p>
+            <div class="space-y-4 sm:space-y-0 sm:space-x-6 flex flex-col sm:flex-row justify-center animate-fade-in-up delay-400">
+                <a href="{% url 'parts:part_list' %}" class="bg-orange-600 hover:bg-orange-700 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
+                    Browse Parts Catalog
+                </a>
+                <a href="{% url 'inquiry' %}" class="bg-transparent border-2 border-white hover:bg-white hover:text-gray-900 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105">
+                    Request a Quote
+                </a>
+
+            </div>
+        </div>
+    </section>
+    <section class="bg-white py-16">
+    <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+        <div>
+            <h2 class="text-4xl font-bold text-orange-500 counter" data-target="1500">0</h2>
+            <p class="mt-2 text-sm text-gray-600">Parts Delivered</p>
+        </div>
+        <div>
+            <h2 class="text-4xl font-bold text-orange-500 counter" data-target="120">0</h2>
+            <p class="mt-2 text-sm text-gray-600">Happy Clients</p>
+        </div>
+        <div>
+            <h2 class="text-4xl font-bold text-orange-500 counter" data-target="35">0</h2>
+            <p class="mt-2 text-sm text-gray-600">Countries Reached</p>
+        </div>
+    </div>
+</section>
+
+
+    {# About Us / Key Value Proposition #}
+    <section class="py-16 bg-white">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-4xl font-bold text-gray-900 mb-8">Why Choose Us?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-gray-50 p-8 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
+                    <i class="fas fa-gem text-orange-500 text-4xl mb-4"></i>
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-3">Genuine Quality</h3>
+                    <p class="text-gray-600">We supply only authentic Magirus parts, ensuring perfect fit and lasting durability for your vehicles.</p>
+                </div>
+                <div class="bg-gray-50 p-8 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
+                    <i class="fas fa-truck-fast text-orange-500 text-4xl mb-4"></i>
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-3">Fast Shipping</h3>
+                    <p class="text-gray-600">Benefit from our efficient logistics and worldwide shipping, getting your parts to you swiftly.</p>
+                </div>
+                <div class="bg-gray-50 p-8 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
+                    <i class="fas fa-headset text-orange-500 text-4xl mb-4"></i>
+                    <h3 class="text-2xl font-semibold text-gray-800 mb-3">Expert Support</h3>
+                    <p class="text-gray-600">Our knowledgeable team is ready to assist you with finding the right parts and answering your questions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    {# Truck Models Section #}
+    {% if truck_models %}
+<section class="py-16 bg-gray-100">
+    <div class="container mx-auto px-4">
+        <h2 class="text-4xl font-bold text-gray-900 text-center mb-10">Our Truck Models</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {% for model in truck_models %}
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                {% if model.image %}
+                <img src="{{ model.image.url }}" alt="{{ model.name }}" class="w-full h-48 object-cover object-center">
+                {% else %}
+                <img src="{% static 'images/magirus.jpeg' %}" alt="Truck Model Placeholder" class="w-full h-48 object-cover object-center">
+                {% endif %}
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4">{{ model.name }}</h3>
+                    <a href="{% url 'parts:part_list' %}?truck_model={{ model.slug }}" class="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md transition-colors duration-300">
+                        View Parts
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="bg-gray-50 py-16">
+    <div class="container mx-auto">
+        <h2 class="text-3xl font-semibold text-center mb-8">What Our Clients Say</h2>
+        <div class="swiper testimonial-swiper">
+            <div class="swiper-wrapper">
+                <div class="swiper-slide bg-white p-6 shadow rounded-lg">
+                    <p class="text-gray-600 italic">“Great service and genuine parts. Highly recommended!”</p>
+                    <div class="mt-4 text-sm font-semibold text-orange-500">– John D.</div>
+                </div>
+                <div class="swiper-slide bg-white p-6 shadow rounded-lg">
+                    <p class="text-gray-600 italic">“We’ve been ordering for years. Never disappointed.”</p>
+                    <div class="mt-4 text-sm font-semibold text-orange-500">– Maria S.</div>
+                </div>
+                <!-- Add more slides -->
+            </div>
+            <div class="swiper-pagination mt-4"></div>
+        </div>
+    </div>
+</section>
+
+    {# Call to Action / Inquiry Section #}
+    <section class="bg-orange-600 py-16 text-white text-center">
+        <div class="container mx-auto px-4">
+            <h2 class="text-4xl md:text-5xl font-bold mb-6">Can't Find Your Part?</h2>
+            <p class="text-xl max-w-3xl mx-auto mb-8 opacity-90">
+                Submit an inquiry and our team will help you locate the exact Truck Model part you need.
+            </p>
+            <a href="{% url 'inquiry' %}" class="inline-block bg-white hover:bg-gray-100 text-orange-600 font-bold py-3 px-10 rounded-full shadow-xl transition-all duration-300 transform hover:scale-105">
+                Submit an Inquiry Today
+            </a>
+        </div>
+    </section>
+</main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const backToTopBtn = document.getElementById('backToTop');
+
+    // Show/hide and focus button based on scroll position
+    function toggleBackToTopBtn() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const windowHeight = window.innerHeight;
+        const documentHeight = document.documentElement.scrollHeight;
+
+        // Calculate how close we are to the bottom (within 100px of bottom = focused)
+        const distanceFromBottom = documentHeight - (scrollTop + windowHeight);
+
+        if (scrollTop > 300) {
+            // Show button when scrolled down 300px
+            backToTopBtn.classList.add('show');
+
+            // Focus button when near the very end of the page
+            if (distanceFromBottom <= 100) {
+                backToTopBtn.classList.add('focused');
+            } else {
+                backToTopBtn.classList.remove('focused');
+            }
+        } else {
+            // Hide button when at top
+            backToTopBtn.classList.remove('show', 'focused');
+        }
+    }
+
+    // Check scroll position on page load
+    toggleBackToTopBtn();
+
+    // Listen for scroll events with throttling for better performance
+    let ticking = false;
+    function requestTick() {
+        if (!ticking) {
+            requestAnimationFrame(toggleBackToTopBtn);
+            ticking = true;
+            setTimeout(() => { ticking = false; }, 16); // ~60fps
+        }
+    }
+
+    window.addEventListener('scroll', requestTick);
+
+    // Smooth scroll to top when clicked
+    backToTopBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+        });
+    });
+});
+</script>
+{% endblock %}

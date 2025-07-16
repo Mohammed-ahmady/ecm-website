@@ -1,0 +1,68 @@
+/* ecm_website/static/css/custom.css */
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom Tailwind CSS */
+.btn-orange {
+  @apply bg-orange-500 text-white font-bold py-2 px-4 rounded;
+}
+
+.card-shadow {
+  @apply shadow-lg p-6 rounded-lg bg-white;
+}
+
+a {
+    @apply no-underline;
+}
+
+/* Logo Styling - Increased sizes */
+.navbar-logo {
+    font-size: 2rem !important; /* 32px */
+    font-weight: 600;
+    font-family: 'Poppins', sans-serif;
+}
+
+.navbar-logo .orange-text,
+.navbar-logo .text-orange {
+    color: #FF6B1A !important;
+    font-size: 2rem !important; /* 32px */
+    font-weight: 700 !important;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Global orange text fixes */
+.text-orange,
+[style*="color: #FF6B1A"],
+[style*="color: rgb(255, 107, 26)"] {
+    color: #FF6B1A !important;
+    font-size: inherit !important;
+    font-weight: 600 !important;
+    font-family: 'Poppins', sans-serif !important;
+}
+
+/* Hero Section */
+.hero-title {
+    font-size: 4rem; /* 64px */
+    font-weight: 700;
+    font-family: 'Poppins', sans-serif;
+}
+
+.hero-title .magirus-text,
+.hero-title .text-orange {
+    color: #FF6B1A !important;
+    font-size: 5rem !important; /* 80px - even bigger */
+    font-weight: 700 !important;
+    display: inline-block;
+    margin: 0 0.5rem;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Navigation specific styles */
+.navbar .text-orange,
+.nav .text-orange,
+header .text-orange {
+    font-size: 2rem !important;
+    font-weight: 700 !important;
+}

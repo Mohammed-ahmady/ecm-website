@@ -1,0 +1,541 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Magirus Parts | Authentic Truck Spare Parts{% endblock %}</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'images/delivery-truck.png' %}" type="image/png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <!-- Custom Fonts -->
+    <style>
+        /* Global Typography */
+        body, p, span, div, input, textarea, select, button {
+            font-family: 'Nunito', sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .text-orange-500 {
+        font-family: inherit !important;
+        font-size: inherit !important;
+        font-weight: inherit !important;
+        }
+        
+        h1, h2, h3, h4, h5, h6,
+        .btn, .nav-link, .button,
+        .checkout-btn, .apply-btn,
+        .product-name, .total-label {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+        }
+        
+        /* Font Weight Utilities */
+        .font-normal {
+            font-weight: 400 !important;
+        }
+        .font-medium {
+            font-weight: 500 !important;
+        }
+        .font-semibold {
+            font-weight: 600 !important;
+        }
+        
+        /* Button and Interactive Elements */
+        button, 
+        .btn,
+        [type="button"],
+        [type="submit"] {
+            font-family: 'Poppins', sans-serif;
+        }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Swiper CSS -->
+    <link
+        rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
+    />
+    
+
+    <!-- Swiper JS -->
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+    <!-- AOS for Scroll Animations -->
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+
+    {% block head_extra %}{% endblock %}
+</head>
+<body class="flex flex-col min-h-screen">
+    <!-- Preloader -->
+    <div id="preloader" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div class="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500"></div>
+    </div>
+
+    <!-- Header -->
+    <header class="bg-gray-900 text-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
+            <!-- Logo -->
+            <a href="{% url 'home' %}" class="text-2xl md:text-3x1 font-bold tracking-tight">
+                <span class="text-orange-500">The European Magirus</span> Center
+            </a>
+
+            <!-- Desktop Nav -->
+            <div class="hidden md:flex items-center space-x-8 text-lg font-medium">
+                <a href="{% url 'home' %}" class="hover:text-orange-400 transition">Home</a>
+                <a href="{% url 'parts:part_list' %}" class="hover:text-orange-400 transition">Parts</a>
+                <a href="{% url 'about' %}" class="hover:text-orange-400 transition">About Us</a>
+                <a href="{% url 'contact' %}" class="hover:text-orange-400 transition">Contact</a>
+                <a href="{% url 'inquiry' %}" class="ml-4 bg-orange-500 hover:bg-orange-600 text-white px-5 py-2 rounded-full font-semibold transition duration-300">
+                    Get a Quote
+                </a>
+                <a href="{% url 'parts:cart_detail' %}" class="floating-cart">
+                    🛒 (<span id="cart-count">{{ cart_count }}</span>)
+                </a>
+            </div>
+            
+            <!-- Mobile Button -->
+            <div class="md:hidden">
+                <button id="mobile-menu-button" class="text-white focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </nav>
+
+        <!-- Mobile Nav -->
+        <div id="mobile-menu" class="hidden md:hidden bg-gray-800 px-6 py-4">
+            <a href="{% url 'home' %}" class="block text-white py-2 hover:text-orange-400">Home</a>
+            <a href="{% url 'parts:part_list' %}" class="block text-white py-2 hover:text-orange-400">Parts</a>
+            <a href="{% url 'about' %}" class="block text-white py-2 hover:text-orange-400">About Us</a>
+            <a href="{% url 'contact' %}" class="block text-white py-2 hover:text-orange-400">Contact</a>
+            <a href="{% url 'parts:cart_detail' %}" class="block text-white py-2 hover:text-orange-400">
+                🛒 Cart (<span id="mobile-cart-count">{{ cart_count }}</span>)
+            </a>
+            <a href="{% url 'inquiry' %}" class="block mt-3 bg-orange-500 hover:bg-orange-600 text-white py-2 px-4 rounded-full text-center font-semibold">
+                Get a Quote
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-300 py-10 mt-12">
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- About -->
+            <div>
+                <h4 class="text-white text-xl font-semibold mb-4">Magirus Parts</h4>
+                <p class="text-sm leading-relaxed">Your trusted source for high-quality Magirus truck spare parts. We deliver genuine and reliable components worldwide.</p>
+            </div>
+
+            <!-- Quick Links -->
+            <div>
+                <h4 class="text-white text-xl font-semibold mb-4">Quick Links</h4>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="{% url 'home' %}" class="hover:text-orange-400 transition">Home</a></li>
+                    <li><a href="{% url 'parts:part_list' %}" class="hover:text-orange-400 transition">Parts Catalog</a></li>
+                    <li><a href="{% url 'about' %}" class="hover:text-orange-400 transition">About Us</a></li>
+                    <li><a href="{% url 'contact' %}" class="hover:text-orange-400 transition">Contact Us</a></li>
+                    <li><a href="{% url 'inquiry' %}" class="hover:text-orange-400 transition">Request a Quote</a></li>
+                </ul>
+            </div>
+
+            <!-- Contact + Social -->
+            <div>
+                <h4 class="text-white text-xl font-semibold mb-4">Get in Touch</h4>
+                <p class="text-sm">Email: <a href="mailto:info@magirusparts.com" class="hover:text-orange-400 transition">info@magirusparts.com</a></p>
+                <p class="text-sm">Phone: +123 456 7890</p>
+                <div class="flex space-x-4 mt-4 text-xl">
+                    <a href="#" class="text-gray-400 hover:text-orange-400"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-orange-400"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-orange-400"><i class="fab fa-linkedin-in"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-orange-400"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Bottom -->
+        <div class="container mx-auto px-4 mt-8 pt-6 border-t border-gray-700 text-center text-sm text-gray-500">
+            &copy; {% now "Y" %} Magirus Parts. All rights reserved.
+        </div>
+        
+    </footer>
+
+    <!-- Floating Back to Top Button -->
+    <button id="backToTopBtn" class="back-to-top-btn">
+        <div class="btn-content">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"></path>
+            </svg>
+            <span class="btn-text">TOP</span>
+        </div>
+    </button>
+
+    <!-- Back to Top CSS and Animations -->
+    <style>
+        .back-to-top-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 65px;
+            height: 65px;
+            background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #f59e0b 100%);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(100px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 9999;
+            box-shadow: 0 8px 32px rgba(30, 64, 175, 0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: floatAnimation 3s ease-in-out infinite;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .btn-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .btn-text {
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            opacity: 0.9;
+        }
+
+        .back-to-top-btn.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .back-to-top-btn.fade-visible {
+            opacity: 0.4;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .back-to-top-btn:hover {
+            background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 50%, #ea580c 100%);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(30, 64, 175, 0.35);
+            animation-play-state: paused;
+            opacity: 1 !important;
+            border-radius: 25px;
+        }
+
+        .back-to-top-btn:hover .btn-content {
+            transform: scale(1.05);
+        }
+
+        .back-to-top-btn:active {
+            transform: translateY(-5px) scale(0.98);
+        }
+
+        @keyframes floatAnimation {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .back-to-top-btn:hover {
+            animation-play-state: paused;
+            transform: translateY(-8px) !important;
+        }
+
+        .back-to-top-btn:not(:hover) {
+            animation-play-state: running;
+        }
+
+        /* Modern glassmorphism effect */
+        .back-to-top-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border-radius: inherit;
+            pointer-events: none;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .back-to-top-btn {
+                width: 55px;
+                height: 55px;
+                bottom: 20px;
+                right: 20px;
+                border-radius: 18px;
+            }
+            
+            .btn-text {
+                font-size: 8px;
+            }
+            
+            .back-to-top-btn:hover {
+                border-radius: 22px;
+            }
+        }
+
+        /* Additional modern effects */
+        .back-to-top-btn {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+                        border-radius 0.3s ease,
+                        box-shadow 0.3s ease;
+        }
+
+        /* Subtle pulse animation when fully visible */
+        .back-to-top-btn.show {
+            animation: floatAnimation 3s ease-in-out infinite, 
+                       subtlePulse 4s ease-in-out infinite;
+        }
+
+        @keyframes subtlePulse {
+            0%, 100% {
+                box-shadow: 0 8px 32px rgba(30, 64, 175, 0.25);
+            }
+            50% {
+                box-shadow: 0 8px 40px rgba(30, 64, 175, 0.35);
+            }
+        }
+    </style>
+
+    <!-- JS: Mobile Menu Toggle -->
+    <script>
+        document.getElementById('mobile-menu-button').addEventListener('click', () => {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        });
+    </script>
+    <script>
+    AOS.init({
+        duration: 1000,
+        easing: 'ease-in-out',
+        once: true
+    });
+</script>
+<script>
+    // Hero animation on load
+    window.addEventListener('load', () => {
+        gsap.from("header", {duration: 1, y: -50, opacity: 0, ease: "power2.out"});
+        gsap.from("main", {duration: 1.2, y: 30, opacity: 0, delay: 0.3, ease: "power2.out"});
+    });
+</script>
+<script>
+    window.addEventListener('load', () => {
+        setTimeout(() => {
+            gsap.to("#preloader", {opacity: 0, duration: 0.6, onComplete: () => {
+                document.getElementById('preloader').style.display = 'none';
+            }});
+        }, 300);
+    });
+</script>
+<script>
+    const counters = document.querySelectorAll('.counter');
+    const options = { threshold: 1.0 };
+    
+    const animateCount = (el, target) => {
+        let count = 0;
+        const speed = target / 50;
+        const update = () => {
+            if (count < target) {
+                count += speed;
+                el.textContent = Math.ceil(count);
+                requestAnimationFrame(update);
+            } else {
+                el.textContent = target;
+            }
+        };
+        update();
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const el = entry.target;
+                const target = +el.dataset.target;
+                animateCount(el, target);
+                observer.unobserve(el);
+            }
+        });
+    }, options);
+
+    counters.forEach(counter => observer.observe(counter));
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  new Swiper('.testimonial-swiper', {
+    loop: true,
+    autoplay: {
+      delay: 4000, // 4 seconds
+      disableOnInteraction: false,
+    },
+    pagination: {
+      el: '.swiper-pagination',
+      clickable: true,
+    },
+    speed: 600, // smooth transition speed
+   effect: 'fade',
+    fadeEffect: {
+    crossFade: true
+},
+// you can change to 'fade', 'cube', etc.
+  });
+});
+</script>
+
+<script>
+// Sophisticated Back to Top Button Implementation
+document.addEventListener('DOMContentLoaded', function() {
+    const backToTopBtn = document.getElementById("backToTopBtn");
+    let isScrolling = false;
+    
+    // Throttle scroll events for better performance
+    function throttle(func, limit) {
+        let inThrottle;
+        return function() {
+            const args = arguments;
+            const context = this;
+            if (!inThrottle) {
+                func.apply(context, args);
+                inThrottle = true;
+                setTimeout(() => inThrottle = false, limit);
+            }
+        }
+    }
+    
+    // Calculate scroll progress and button visibility
+    function updateButtonVisibility() {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+        const documentHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const scrollProgress = scrollTop / documentHeight;
+        
+        // Button behavior logic - exactly as requested
+        if (scrollTop < 200) {
+            // At the very top - completely invisible
+            backToTopBtn.classList.remove("show", "fade-visible");
+        } else if (scrollProgress < 0.85) {
+            // Middle of page - faded but visible (40% opacity)
+            backToTopBtn.classList.remove("show");
+            backToTopBtn.classList.add("fade-visible");
+        } else {
+            // At the very end of page - fully focused and not faded
+            backToTopBtn.classList.remove("fade-visible");
+            backToTopBtn.classList.add("show");
+        }
+    }
+    
+    // Smooth scroll to top with easing
+    function scrollToTop() {
+        // Use modern browser API with fallback
+        if ('scrollBehavior' in document.documentElement.style) {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        } else {
+            // Fallback for older browsers
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            
+            if (scrollTop > 0) {
+                const scrollStep = -scrollTop / 30; // Smooth animation steps
+                
+                function smoothScroll() {
+                    if (window.pageYOffset > 0) {
+                        window.scrollBy(0, scrollStep);
+                        requestAnimationFrame(smoothScroll);
+                    }
+                }
+                
+                smoothScroll();
+            }
+        }
+    }
+    
+    // Event listeners
+    window.addEventListener("scroll", throttle(updateButtonVisibility, 16)); // ~60fps
+    
+    backToTopBtn.addEventListener("click", function(e) {
+        e.preventDefault();
+        scrollToTop();
+    });
+    
+    // Initialize button state
+    updateButtonVisibility();
+    
+    // Add subtle pulse animation when button becomes fully visible
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (backToTopBtn.classList.contains('show')) {
+                backToTopBtn.style.animation = 'floatAnimation 3s ease-in-out infinite, pulse 2s ease-in-out infinite';
+            } else {
+                backToTopBtn.style.animation = 'floatAnimation 3s ease-in-out infinite';
+            }
+        });
+    });
+    
+    // Add pulse keyframes
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 4px 20px rgba(30, 64, 175, 0.3);
+            }
+            50% {
+                box-shadow: 0 4px 25px rgba(30, 64, 175, 0.5);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+});
+</script>
+
+
+</body>
+</html>
