@@ -66,3 +66,205 @@ header .text-orange {
     font-size: 2rem !important;
     font-weight: 700 !important;
 }
+
+/* Truck Model Modern Design with Animations */
+.truck-model-card {
+    cursor: pointer;
+    text-decoration: none;
+    position: relative;
+    background: linear-gradient(135deg, #ffffff, #f8f9fa);
+    border-radius: 1rem;
+    overflow: hidden;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.truck-model-card:hover {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 107, 26, 0.1);
+    transform: translateY(-12px) scale(1.02);
+}
+
+.truck-model-image-container {
+    position: relative;
+    overflow: hidden;
+    height: 16rem; /* 256px */
+}
+
+.truck-model-image-container img {
+    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+    filter: brightness(1.1) contrast(1.1);
+}
+
+.truck-model-card:hover .truck-model-image-container img {
+    transform: scale(1.1) rotate(1deg);
+}
+
+.truck-model-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 107, 26, 0.9), rgba(255, 140, 0, 0.9));
+    opacity: 0;
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(2px);
+}
+
+.truck-model-card:hover .truck-model-overlay {
+    opacity: 1;
+}
+
+.truck-model-content {
+    text-align: center;
+    transform: translateY(32px);
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.truck-model-card:hover .truck-model-content {
+    transform: translateY(0);
+}
+
+.truck-model-icon {
+    margin-bottom: 1rem;
+}
+
+.truck-model-icon i {
+    font-size: 2.5rem;
+    color: white;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    animation: float 3s ease-in-out infinite;
+}
+
+.truck-model-card:hover .truck-model-icon i {
+    animation: bounce 1s ease-in-out infinite;
+}
+
+.truck-model-content h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.5rem;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    font-family: 'Poppins', sans-serif;
+}
+
+/* Fallback text styling for better visibility */
+.truck-model-card h3 {
+    color: #ffffff !important;
+    text-shadow: 
+        0 1px 3px rgba(0, 0, 0, 0.8),
+        0 2px 6px rgba(0, 0, 0, 0.6),
+        0 4px 12px rgba(0, 0, 0, 0.4) !important;
+    font-weight: 700 !important;
+    font-family: 'Poppins', sans-serif !important;
+}
+
+.truck-model-content p {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Always visible title at bottom */
+.truck-model-card .absolute.bottom-0 {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7), transparent);
+    padding: 1rem;
+    border-radius: 0 0 1rem 1rem;
+}
+
+.truck-model-card .absolute.bottom-0 h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #ffffff !important;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 4px 16px rgba(0, 0, 0, 0.6);
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+/* Stronger gradient overlay for all images */
+.truck-model-image-container::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Ensure text is above the gradient */
+.truck-model-card .absolute.bottom-0 {
+    z-index: 2;
+}
+
+/* Ensure text is always visible on any background */
+.truck-model-card .absolute.bottom-0::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.95), transparent);
+    z-index: -1;
+    border-radius: 0 0 1rem 1rem;
+}
+
+/* Animations */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    60% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .truck-model-card:hover {
+        transform: translateY(-8px) scale(1.01);
+    }
+    
+    .truck-model-content h3 {
+        font-size: 1.25rem;
+    }
+}
+
+/* Loading state animation */
+.truck-model-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transition: left 0.5s;
+    z-index: 1;
+}
+
+.truck-model-card:hover::before {
+    left: 100%;
+}

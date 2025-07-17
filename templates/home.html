@@ -27,23 +27,25 @@
 
             </div>
         </div>
+
+    {# Statistics section#}
     </section>
     <section class="bg-white py-16">
-    <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-        <div>
-            <h2 class="text-4xl font-bold text-orange-500 counter" data-target="1500">0</h2>
-            <p class="mt-2 text-sm text-gray-600">Parts Delivered</p>
+        <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div>
+                <h2 class="text-4xl font-bold text-orange-500 counter" data-target="1500">0</h2>
+                <p class="mt-2 text-sm text-gray-600">Parts Delivered</p>
+            </div>
+            <div>
+                <h2 class="text-4xl font-bold text-orange-500 counter" data-target="120">0</h2>
+                <p class="mt-2 text-sm text-gray-600">Happy Clients</p>
+            </div>
+            <div>
+                <h2 class="text-4xl font-bold text-orange-500 counter" data-target="35">0</h2>
+                <p class="mt-2 text-sm text-gray-600">Countries Reached</p>
+            </div>
         </div>
-        <div>
-            <h2 class="text-4xl font-bold text-orange-500 counter" data-target="120">0</h2>
-            <p class="mt-2 text-sm text-gray-600">Happy Clients</p>
-        </div>
-        <div>
-            <h2 class="text-4xl font-bold text-orange-500 counter" data-target="35">0</h2>
-            <p class="mt-2 text-sm text-gray-600">Countries Reached</p>
-        </div>
-    </div>
-</section>
+    </section>
 
 
     {# About Us / Key Value Proposition #}
@@ -52,17 +54,23 @@
             <h2 class="text-4xl font-bold text-gray-900 mb-8">Why Choose Us?</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="bg-gray-50 p-8 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
-                    <i class="fas fa-gem text-orange-500 text-4xl mb-4"></i>
+                    <div class="mb-4 flex justify-center">
+                        <i class="fa-solid fa-star" style="color: #F97316; font-size: 24px;"></i>
+                    </div>
                     <h3 class="text-2xl font-semibold text-gray-800 mb-3">Genuine Quality</h3>
                     <p class="text-gray-600">We supply only authentic Magirus parts, ensuring perfect fit and lasting durability for your vehicles.</p>
                 </div>
                 <div class="bg-gray-50 p-8 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
-                    <i class="fas fa-truck-fast text-orange-500 text-4xl mb-4"></i>
+                    <div class="mb-4 flex justify-center">
+                        <i class="fa-solid fa-truck-fast" style="color: #F97316; font-size: 24px;"></i>
+                    </div>
                     <h3 class="text-2xl font-semibold text-gray-800 mb-3">Fast Shipping</h3>
                     <p class="text-gray-600">Benefit from our efficient logistics and worldwide shipping, getting your parts to you swiftly.</p>
                 </div>
                 <div class="bg-gray-50 p-8 rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 transform hover:-translate-y-1">
-                    <i class="fas fa-headset text-orange-500 text-4xl mb-4"></i>
+                    <div class="mb-4 flex justify-center">
+                        <i class="fa-solid fa-headset" style="color: #F97316; font-size: 24px;"></i>
+                    </div>
                     <h3 class="text-2xl font-semibold text-gray-800 mb-3">Expert Support</h3>
                     <p class="text-gray-600">Our knowledgeable team is ready to assist you with finding the right parts and answering your questions.</p>
                 </div>
@@ -77,24 +85,26 @@
         <h2 class="text-4xl font-bold text-gray-900 text-center mb-10">Our Truck Models</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {% for model in truck_models %}
-            <div class="bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                {% if model.image %}
-                <img src="{{ model.image.url }}" alt="{{ model.name }}" class="w-full h-48 object-cover object-center">
-                {% else %}
-                <img src="{% static 'images/magirus.jpeg' %}" alt="Truck Model Placeholder" class="w-full h-48 object-cover object-center">
-                {% endif %}
-                <div class="p-6">
-                    <h3 class="text-xl font-semibold text-gray-800 mb-4">{{ model.name }}</h3>
-                    <a href="{% url 'parts:part_list' %}?truck_model={{ model.slug }}" class="block w-full text-center bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-md transition-colors duration-300">
-                        View Parts
-                    </a>
+            <a href="{% url 'parts:part_list' %}?truck_model={{ model.slug }}" class="block bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                <div class="relative overflow-hidden">
+                    {% if model.image %}
+                    <img src="{{ model.image.url }}" alt="{{ model.name }}" class="w-full h-64 object-cover object-center transition-transform duration-300 hover:scale-110">
+                    {% else %}
+                    <div class="w-full h-64 flex items-center justify-center bg-gray-200 text-gray-500 text-sm font-medium text-center p-4">
+                        No Image Available
+                    </div>
+                    {% endif %}
                 </div>
-            </div>
+                <div class="p-4 flex items-center justify-center h-16">
+                    <h3 class="text-xl font-semibold text-gray-900 text-center leading-tight">{{ model.name }}</h3>
+                </div>
+            </a>
             {% endfor %}
         </div>
     </div>
 </section>
 {% endif %}
+
 
 <section class="bg-gray-50 py-16">
     <div class="container mx-auto">
