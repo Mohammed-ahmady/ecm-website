@@ -28,17 +28,17 @@
                 <h1 class="shopping-cart-title">Shopping cart <span class="item-count">{{ total_items }} item{{ total_items|pluralize }}</span></h1>
                 
                 <!-- Cart Items Header -->
-                <div class="cart-header" style="display: grid; grid-template-columns: 80px 1fr 120px 80px 120px 50px; gap: 1rem; padding: 0.5rem 1rem; border-bottom: 1px solid #e5e7eb; margin-bottom: 1rem; font-weight: 600; color: #6b7280; font-size: 0.875rem;">
+                <div class="cart-header" style="display: grid; grid-template-columns: 80px 1fr 120px 80px 120px 100px; gap: 1rem; padding: 0.5rem 1rem; border-bottom: 1px solid #e5e7eb; margin-bottom: 1rem; font-weight: 600; color: #6b7280; font-size: 0.875rem;">
                     <div>Image</div>
                     <div>Product</div>
                     <div style="text-align: center;">Price</div>
                     <div style="text-align: center;">Quantity</div>
                     <div style="text-align: center;">Total</div>
-                    <div style="text-align: center;">Reduce</div>
+                    <div style="text-align: center;">Actions</div>
                 </div>
 
                 {% for item in cart_items %}
-                <div class="cart-item" data-part-id="{{ item.part.id }}" style="display: grid; grid-template-columns: 80px 1fr 120px 80px 120px 50px; gap: 1rem; align-items: center; padding: 1rem; border-bottom: 1px solid #f3f4f6; margin-bottom: 0.5rem;">
+                <div class="cart-item" data-part-id="{{ item.part.id }}" style="display: grid; grid-template-columns: 80px 1fr 120px 80px 120px 100px; gap: 1rem; align-items: center; padding: 1rem; border-bottom: 1px solid #f3f4f6; margin-bottom: 0.5rem;">
                     <div class="product-image" style="width: 80px; height: 80px;">
                         {% if item.part.image %}
                             <img src="{{ item.part.image.url }}" alt="{{ item.part.name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
@@ -74,10 +74,15 @@
                         {% endif %}
                     </div>
                     
-                    <div class="remove-action" style="text-align: center;">
-                        <button type="button" class="remove-item-btn remove-btn" data-part-id="{{ item.part.id }}" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 0.5rem; border-radius: 4px; transition: all 0.2s;" title="Remove one item">
-                            <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="quantity-actions" style="text-align: center; display: flex; justify-content: center; gap: 0.5rem; align-items: center;">
+                        <button type="button" class="remove-item-btn" data-part-id="{{ item.part.id }}" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 0.5rem; border-radius: 4px; transition: all 0.2s; display: flex; align-items: center; justify-content: center;" title="Remove one item">
+                            <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
+                            </svg>
+                        </button>
+                        <button type="button" class="add-item-btn" data-part-id="{{ item.part.id }}" style="background: none; border: none; color: #10b981; cursor: pointer; padding: 0.5rem; border-radius: 4px; transition: all 0.2s; display: flex; align-items: center; justify-content: center;" title="Add one item">
+                            <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
                             </svg>
                         </button>
                     </div>
@@ -160,9 +165,9 @@
 console.log("=== DIRECT SCRIPT LOADING ===");
 console.log("JavaScript is working!");
 
-// Simple test function immediately available
-window.testRemoveItem = function(partId) {
-    console.log("TEST FUNCTION CALLED for part:", partId);
+// Function to update cart item quantity
+window.updateItemQuantity = function(partId, change) {
+    console.log(`UPDATE QUANTITY for part ${partId}, change: ${change}`);
     
     // Find cart item
     const cartItem = document.querySelector(`.cart-item[data-part-id="${partId}"]`);
@@ -179,9 +184,35 @@ window.testRemoveItem = function(partId) {
     }
     
     const currentQuantity = parseInt(quantityElement.textContent.trim());
-    const newQuantity = Math.max(0, currentQuantity - 1);
+    const newQuantity = Math.max(0, currentQuantity + change);
     
     console.log("Current:", currentQuantity, "New:", newQuantity);
+    
+    // If quantity reaches 0, remove the item from cart
+    if (newQuantity === 0) {
+        console.log(`Removing item ${partId} from cart (quantity reached 0)`);
+        
+        // Add fade out animation
+        cartItem.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
+        cartItem.style.opacity = '0';
+        cartItem.style.transform = 'translateX(-20px)';
+        
+        // Remove the item after animation
+        setTimeout(() => {
+            cartItem.remove();
+            
+            // Check if cart is now empty
+            const remainingItems = document.querySelectorAll('.cart-item');
+            if (remainingItems.length === 0) {
+                console.log("Cart is now empty, reloading page...");
+                location.reload(); // Reload to show empty cart state
+            } else {
+                updateCartTotals();
+            }
+        }, 300);
+        
+        return;
+    }
     
     // Update quantity display
     quantityElement.textContent = newQuantity;
@@ -203,6 +234,11 @@ window.testRemoveItem = function(partId) {
     }
     
     // Update cart totals
+    updateCartTotals();
+};
+
+// Function to update overall cart totals
+function updateCartTotals() {
     let subtotal = 0;
     let totalItems = 0;
     
@@ -229,23 +265,44 @@ window.testRemoveItem = function(partId) {
     if (itemCountElement) itemCountElement.textContent = `${totalItems} item${totalItems !== 1 ? 's' : ''}`;
     
     console.log("Updated totals - Subtotal:", subtotal, "Items:", totalItems);
+}
+
+// Legacy function for testing (backward compatibility)
+window.testRemoveItem = function(partId) {
+    updateItemQuantity(partId, -1);
 };
 
 // Set up button click handlers when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     console.log("DOM loaded, setting up buttons...");
     
-    const buttons = document.querySelectorAll('.remove-item-btn');
-    console.log("Found", buttons.length, "buttons");
+    // Set up remove buttons (minus)
+    const removeButtons = document.querySelectorAll('.remove-item-btn');
+    console.log("Found", removeButtons.length, "remove buttons");
     
-    buttons.forEach((btn, index) => {
+    removeButtons.forEach((btn, index) => {
         const partId = btn.getAttribute('data-part-id');
-        console.log(`Setting up button ${index + 1} for part ${partId}`);
+        console.log(`Setting up remove button ${index + 1} for part ${partId}`);
         
         btn.onclick = function(e) {
             e.preventDefault();
-            console.log("Button clicked for part:", partId);
-            testRemoveItem(partId);
+            console.log("Remove button clicked for part:", partId);
+            updateItemQuantity(partId, -1);
+        };
+    });
+    
+    // Set up add buttons (plus)
+    const addButtons = document.querySelectorAll('.add-item-btn');
+    console.log("Found", addButtons.length, "add buttons");
+    
+    addButtons.forEach((btn, index) => {
+        const partId = btn.getAttribute('data-part-id');
+        console.log(`Setting up add button ${index + 1} for part ${partId}`);
+        
+        btn.onclick = function(e) {
+            e.preventDefault();
+            console.log("Add button clicked for part:", partId);
+            updateItemQuantity(partId, +1);
         };
     });
     
