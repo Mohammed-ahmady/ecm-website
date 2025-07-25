@@ -39,7 +39,7 @@
     font-family: 'Poppins', sans-serif;
 }
 
-/* Orange Text Styling */
+/* Orange Text Styling - ONLY within cart page */
 .cart-detail-page [class*="text-orange"],
 .cart-detail-page .edit-btn,
 .cart-detail-page a:hover {
@@ -56,11 +56,11 @@
     box-sizing: border-box;
 }
 
-/* Global color text styling */
-[class*="text-orange"],
-a[href]:not(.btn):hover,
-.edit-btn,
-*[style*="color: #FF6B1A"] {
+/* Global color text styling - ONLY within cart page */
+.cart-detail-page [class*="text-orange"],
+.cart-detail-page a[href]:not(.btn):hover,
+.cart-detail-page .edit-btn,
+.cart-detail-page *[style*="color: #FF6B1A"] {
     color: #FF6B1A !important;
     font-size: 1rem;
     font-family: 'Poppins', sans-serif;

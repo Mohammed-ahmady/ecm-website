@@ -33,10 +33,12 @@ class ModernCart:
             if quantity > 0:
                 cart_item.quantity = quantity
                 cart_item.save()
+                return cart_item
             else:
                 cart_item.delete()
+                return None
         except CartItem.DoesNotExist:
-            pass
+            return None
 
     def remove(self, part):
         """Remove a part from the cart"""
@@ -61,12 +63,30 @@ class ModernCart:
         CartItem.objects.filter(session_key=self.session_key).delete()
 
 
-def get_cart_response_data(cart):
+def get_cart_response_data(cart, updated_item=None):
     """Generate standardized cart response data for AJAX requests"""
-    return {
-        'cart_total_items': cart.get_total_items(),
-        'cart_total_price': float(cart.get_total_price()),
+    # Calculate the cart totals
+    total_items = cart.get_total_items()
+    total_price = float(cart.get_total_price())
+    
+    data = {
+        'success': True,
+        'cart_total_items': total_items,
+        'cart_total_price': total_price,
+        'total_items': total_items,
+        'cart_total': total_price,
     }
+    
+    # Add specific item data if provided
+    if updated_item:
+        item_total = float(updated_item.total_price) if updated_item.part.price else 0
+        data.update({
+            'part_id': updated_item.part.id,
+            'quantity': updated_item.quantity,
+            'item_total': item_total
+        })
+    
+    return data
 
 
 def is_ajax_request(request):

@@ -75,19 +75,55 @@ def cart_detail(request):
 
 @require_POST
 def update_cart(request, part_id):
+    """
+    Update the quantity of a part in the cart.
+    
+    Args:
+        request: HTTP request object
+        part_id: ID of the part to update in cart
+        
+    Returns:
+        JsonResponse for AJAX requests or redirect for form submissions
+    """
     cart = ModernCart(request)
     part = get_object_or_404(Part, id=part_id)
-    quantity = int(request.POST.get('quantity', 0))
     
-    cart.update(part, quantity)
-    
-    if is_ajax_request(request):
-        return JsonResponse({
-            'success': True,
-            **get_cart_response_data(cart)
-        })
-    
-    return redirect('parts:cart_detail')
+    try:
+        # Get quantity from POST data
+        quantity = int(request.POST.get('quantity', 0))
+        
+        # Update the cart item and get the updated item
+        cart_item = cart.update(part, quantity)
+        
+        if is_ajax_request(request):
+            if cart_item:
+                # Item was updated
+                return JsonResponse({
+                    'success': True,
+                    'part_id': part_id,
+                    'quantity': quantity,
+                    'item_total': float(cart_item.total_price) if cart_item.part.price else 0,
+                    'cart_total': float(cart.get_total_price()),
+                    'total_items': cart.get_total_items()
+                })
+            else:
+                # Item was removed (quantity was 0)
+                return JsonResponse({
+                    'success': True,
+                    'cart_total': float(cart.get_total_price()),
+                    'total_items': cart.get_total_items()
+                })
+        
+        return redirect('parts:cart_detail')
+    except Exception as e:
+        if is_ajax_request(request):
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=400)
+        
+        messages.error(request, f"Error updating cart: {e}")
+        return redirect('parts:cart_detail')
 
 
 def remove_from_cart(request, part_id):
@@ -101,19 +137,31 @@ def remove_from_cart(request, part_id):
     Returns:
         JsonResponse for AJAX requests or redirect for form submissions
     """
-    cart = ModernCart(request)
-    part = get_object_or_404(Part, id=part_id)
-    cart.remove(part)
-    
-    if is_ajax_request(request):
-        return JsonResponse({
-            'success': True,
-            'message': f'{part.name} removed from cart!',
-            **get_cart_response_data(cart)
-        })
-    
-    messages.success(request, f'{part.name} removed from cart!')
-    return redirect('parts:cart_detail')
+    try:
+        cart = ModernCart(request)
+        part = get_object_or_404(Part, id=part_id)
+        cart.remove(part)
+        
+        if is_ajax_request(request):
+            return JsonResponse({
+                'success': True,
+                'part_id': part_id,
+                'message': f'{part.name} removed from cart!',
+                'cart_total': float(cart.get_total_price()),
+                'total_items': cart.get_total_items()
+            })
+        
+        messages.success(request, f'{part.name} removed from cart!')
+        return redirect('parts:cart_detail')
+    except Exception as e:
+        if is_ajax_request(request):
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=400)
+        
+        messages.error(request, f"Error removing item: {e}")
+        return redirect('parts:cart_detail')
 
 
 def checkout_page(request):

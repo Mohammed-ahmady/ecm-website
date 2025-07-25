@@ -27,49 +27,57 @@
             <section class="left-section">
                 <h1 class="shopping-cart-title">Shopping cart <span class="item-count">{{ total_items }} item{{ total_items|pluralize }}</span></h1>
                 
+                <!-- Cart Items Header -->
+                <div class="cart-header" style="display: grid; grid-template-columns: 80px 1fr 120px 80px 120px 50px; gap: 1rem; padding: 0.5rem 1rem; border-bottom: 1px solid #e5e7eb; margin-bottom: 1rem; font-weight: 600; color: #6b7280; font-size: 0.875rem;">
+                    <div>Image</div>
+                    <div>Product</div>
+                    <div style="text-align: center;">Price</div>
+                    <div style="text-align: center;">Quantity</div>
+                    <div style="text-align: center;">Total</div>
+                    <div style="text-align: center;">Reduce</div>
+                </div>
+
                 {% for item in cart_items %}
-                <div class="cart-item" data-part-id="{{ item.part.id }}">
-                    <div class="product-image">
+                <div class="cart-item" data-part-id="{{ item.part.id }}" style="display: grid; grid-template-columns: 80px 1fr 120px 80px 120px 50px; gap: 1rem; align-items: center; padding: 1rem; border-bottom: 1px solid #f3f4f6; margin-bottom: 0.5rem;">
+                    <div class="product-image" style="width: 80px; height: 80px;">
                         {% if item.part.image %}
-                            <img src="{{ item.part.image.url }}" alt="{{ item.part.name }}">
+                            <img src="{{ item.part.image.url }}" alt="{{ item.part.name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
                         {% else %}
                             <img src="{% static 'images/magirus.jpeg' %}" alt="{{ item.part.name }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
                         {% endif %}
                     </div>
+                    
                     <div class="product-details">
-                        <h3 class="product-name">
-                            <a href="{% url 'parts:part_detail' item.part.slug %}">{{ item.part.name }}</a>
+                        <h3 class="product-name" style="margin: 0 0 0.5rem 0; font-size: 1rem; font-weight: 600;">
+                            <a href="{% url 'parts:part_detail' item.part.slug %}" style="text-decoration: none; color: #1f2937;">{{ item.part.name }}</a>
                         </h3>
-                        <p class="product-info">Part #: {{ item.part.part_number }}</p>
+                        <p class="product-info" style="margin: 0; color: #6b7280; font-size: 0.875rem;">Part #: {{ item.part.part_number }}</p>
                     </div>
-                    <div class="product-price">
+                    
+                    <div class="product-price" style="text-align: center; font-weight: 600; color: #1f2937;">
                         {% if item.part.price %}
                             EGP {{ item.part.price }}
                         {% else %}
                             Price on request
                         {% endif %}
                     </div>
-                    <div class="quantity-controls">
-                        <div style="display: flex; align-items: center; gap: 0.5rem;">
-                            <span class="qty-label" style="font-size: 0.9rem; margin-right: 0.3rem;">Qty.</span>
-                            <button type="button" class="quantity-btn decrease-btn" data-action="decrease" data-part-id="{{ item.part.id }}">
-                                <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
-                                </svg>
-                            </button>
-                            <span class="quantity-display" id="quantity-{{ item.part.id }}">{{ item.quantity }}</span>
-                            <button type="button" class="quantity-btn increase-btn" data-action="increase" data-part-id="{{ item.part.id }}">
-                                <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                                </svg>
-                            </button>
-                        </div>
+                    
+                    <div class="quantity-display" style="text-align: center; font-weight: 600; color: #1f2937;">
+                        {{ item.quantity }}
+                    </div>
+                    
+                    <div class="item-total" style="text-align: center; font-weight: 600; color: #1f2937;">
                         {% if item.part.price %}
-                            <span class="item-total" style="font-weight: 600;">EGP {{ item.total_price }}</span>
+                            EGP {{ item.total_price }}
+                        {% else %}
+                            -
                         {% endif %}
-                        <button type="button" class="remove-item-btn remove-btn" data-part-id="{{ item.part.id }}">
-                            <svg style="width: 1rem; height: 1rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </div>
+                    
+                    <div class="remove-action" style="text-align: center;">
+                        <button type="button" class="remove-item-btn remove-btn" data-part-id="{{ item.part.id }}" style="background: none; border: none; color: #ef4444; cursor: pointer; padding: 0.5rem; border-radius: 4px; transition: all 0.2s;" title="Remove one item">
+                            <svg style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
                             </svg>
                         </button>
                     </div>
@@ -147,328 +155,104 @@
 
 {% csrf_token %}
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("DOM fully loaded");
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    console.log("CSRF Token:", csrfToken ? "Found" : "Not found");
-    
-    // Initialize the cart functionality
-    setupCartFunctionality();
-    setupDiscountCode();
-    setupStyleEffects();
-    
-    // Main cart functionality
-    function setupCartFunctionality() {
-        // Handle quantity changes with direct click handlers
-        document.querySelectorAll('.increase-btn, .decrease-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const partId = this.getAttribute('data-part-id');
-                const action = this.getAttribute('data-action');
-                const changeAmount = action === 'increase' ? 1 : -1;
-                
-                console.log(`${action} button clicked for part ID: ${partId}`);
-                handleQuantityChange(partId, changeAmount);
-            });
-        });
-        
-        // Handle remove item buttons
-        document.querySelectorAll('.remove-item-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const partId = this.getAttribute('data-part-id');
-                console.log("Remove button clicked for part ID:", partId);
-                removeItem(partId);
-            });
-        });
-        
-        // Handle quantity changes
-        function handleQuantityChange(partId, changeAmount) {
-            const quantityElement = document.getElementById(`quantity-${partId}`);
-            if (!quantityElement) {
-                console.error(`Quantity element not found for part ID: ${partId}`);
-                return;
-            }
-            
-            let currentQuantity = parseInt(quantityElement.textContent);
-            let newQuantity = currentQuantity + changeAmount;
-            
-            // Ensure quantity is within reasonable limits (1-10)
-            if (newQuantity < 1) newQuantity = 1;
-            if (newQuantity > 10) newQuantity = 10;
-            
-            // If quantity didn't change, no need to proceed
-            if (currentQuantity === newQuantity) return;
-            
-            // Update display immediately for better UX
-            quantityElement.textContent = newQuantity;
-            
-            // Recalculate item's total price
-            updateItemPrice(partId, newQuantity);
-            
-            // Send update to server
-            updateCartOnServer(partId, newQuantity);
-        }
-        
-        // Update item price in the UI
-        function updateItemPrice(partId, quantity) {
-            const cartItem = document.querySelector(`.cart-item[data-part-id="${partId}"]`);
-            if (!cartItem) return;
-            
-            const priceElement = cartItem.querySelector('.product-price');
-            const itemTotalElement = cartItem.querySelector('.item-total');
-            
-            if (!priceElement || !itemTotalElement) return;
-            
-            // Extract price (assuming format: "EGP XXX")
-            const priceText = priceElement.textContent.trim();
-            const match = priceText.match(/EGP\s+(\d+(\.\d+)?)/);
-            
-            if (match && match[1]) {
-                const price = parseFloat(match[1]);
-                const totalPrice = price * quantity;
-                
-                // Update item total
-                itemTotalElement.textContent = `EGP ${totalPrice.toFixed(2)}`;
-                
-                // Update cart totals
-                updateCartTotals();
-            }
-        }
-        
-        // Update overall cart totals
-        function updateCartTotals() {
-            let subtotal = 0;
-            
-            // Calculate new subtotal
-            document.querySelectorAll('.item-total').forEach(element => {
-                const priceText = element.textContent.trim();
-                const match = priceText.match(/EGP\s+(\d+(\.\d+)?)/);
-                
-                if (match && match[1]) {
-                    subtotal += parseFloat(match[1]);
-                }
-            });
-            
-            // Update subtotal and total in summary
-            const subtotalElement = document.getElementById('cart-subtotal');
-            const totalElement = document.getElementById('cart-total');
-            const itemCountElement = document.querySelector('.item-count');
-            
-            if (subtotalElement) {
-                subtotalElement.textContent = `EGP ${subtotal.toFixed(2)}`;
-            }
-            
-            if (totalElement) {
-                totalElement.textContent = `EGP ${subtotal.toFixed(2)}`; // Add tax calculation if needed
-            }
-            
-            // Update item count in header if needed
-            if (itemCountElement) {
-                const itemCount = document.querySelectorAll('.cart-item').length;
-                itemCountElement.textContent = `${itemCount} item${itemCount !== 1 ? 's' : ''}`;
-            }
-        }
-        
-        // Send cart updates to the server
-        function updateCartOnServer(partId, quantity) {
-            fetch(`/cart/update/${partId}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': csrfToken
-                },
-                body: `quantity=${quantity}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Cart updated successfully:', data);
-                
-                // Update cart count in navigation if exists
-                if (data.cart_count !== undefined) {
-                    const cartCounters = document.querySelectorAll('#cart-count, #mobile-cart-count');
-                    cartCounters.forEach(counter => {
-                        if (counter) counter.textContent = data.cart_count;
-                    });
-                }
-                
-                // If server sent updated total, use it instead of client calculation
-                if (data.total_price !== undefined) {
-                    const totalElement = document.getElementById('cart-total');
-                    if (totalElement) {
-                        totalElement.textContent = `EGP ${data.total_price}`;
-                    }
-                }
-                
-                // Show success notification if needed
-                if (data.success && window.showNotification) {
-                    showNotification('Cart updated');
-                }
-            })
-            .catch(error => {
-                console.error('Error updating cart:', error);
-                // Revert to original quantity if there was an error
-                const quantityElement = document.getElementById(`quantity-${partId}`);
-                if (quantityElement && window.showNotification) {
-                    showNotification('Failed to update cart. Please try again.', 'error');
-                }
-            });
-        }
-        
-        // Remove item from cart
-        function removeItem(partId) {
-            // Find the cart item
-            const cartItem = document.querySelector(`.cart-item[data-part-id="${partId}"]`);
-            if (!cartItem) return;
-            
-            // Add removal animation
-            cartItem.style.opacity = '0.5';
-            cartItem.style.transform = 'translateX(100px)';
-            
-            // Send remove request to server
-            fetch(`/cart/remove/${partId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-CSRFToken': csrfToken
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                console.log('Item removed successfully:', data);
-                
-                // Remove the item from DOM
-                cartItem.addEventListener('transitionend', function() {
-                    cartItem.remove();
-                    
-                    // Update cart totals
-                    updateCartTotals();
-                    
-                    // Update cart count in navigation
-                    if (data.cart_count !== undefined) {
-                        const cartCounters = document.querySelectorAll('#cart-count, #mobile-cart-count');
-                        cartCounters.forEach(counter => {
-                            if (counter) counter.textContent = data.cart_count;
-                        });
-                    }
-                    
-                    // Check if cart is empty now
-                    if (document.querySelectorAll('.cart-item').length === 0) {
-                        location.reload(); // Reload to show empty cart template
-                    }
-                    
-                    // Show success notification if needed
-                    if (data.success && window.showNotification) {
-                        showNotification('Item removed from cart');
-                    }
-                });
-            })
-            .catch(error => {
-                console.error('Error removing item:', error);
-                
-                // Revert animation if there was an error
-                cartItem.style.opacity = '1';
-                cartItem.style.transform = 'translateX(0)';
-                
-                if (window.showNotification) {
-                    showNotification('Failed to remove item. Please try again.', 'error');
-                }
-            });
-        }
-    }
-    
-    // Discount code functionality
-    function setupDiscountCode() {
-        const applyBtn = document.getElementById('apply-discount-btn');
-        if (applyBtn) {
-            applyBtn.addEventListener('click', function(e) {
-                e.preventDefault();
-                
-                const discountInput = document.getElementById('discount-code-input');
-                const code = discountInput.value.trim();
-                
-                if (code) {
-                    alert(`Discount code "${code}" applied!`);
-                    discountInput.value = '';
-                } else {
-                    alert('Please enter a discount code');
-                }
-            });
-        }
-    }
-    
-    // Style effects
-    function setupStyleEffects() {
-        // Edit buttons functionality
-        document.querySelectorAll('.edit-btn').forEach(btn => {
-            btn.addEventListener('click', function(e) {
-                e.preventDefault();
-                alert('This feature will be available soon!');
-            });
-        });
-        
-        // Add hover effects for buttons
-        document.querySelectorAll('.quantity-btn, .remove-item-btn, .edit-btn').forEach(btn => {
-            btn.addEventListener('mouseenter', function() {
-                this.style.transform = 'scale(1.05)';
-            });
-            
-            btn.addEventListener('mouseleave', function() {
-                this.style.transform = 'scale(1)';
-            });
-        });
-        
-        // Add smooth transitions
-        document.querySelectorAll('.cart-item').forEach(item => {
-            item.style.transition = 'all 0.3s ease';
-        });
-    }
-    
-    // Simple notification function (fallback)
-    window.showNotification = function(message, type = 'success') {
-        if (!document.getElementById('notification-container')) {
-            const container = document.createElement('div');
-            container.id = 'notification-container';
-            container.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999;';
-            document.body.appendChild(container);
-        }
-        
-        const notification = document.createElement('div');
-        notification.className = `notification ${type}`;
-        notification.textContent = message;
-        notification.style.cssText = `
-            padding: 12px 20px;
-            margin-bottom: 10px;
-            border-radius: 4px;
-            background-color: ${type === 'success' ? '#4CAF50' : '#F44336'};
-            color: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            opacity: 0;
-            transform: translateX(50px);
-            transition: all 0.3s ease;
-        `;
-        
-        document.getElementById('notification-container').appendChild(notification);
-        
-        // Trigger animation
-        setTimeout(() => {
-            notification.style.opacity = '1';
-            notification.style.transform = 'translateX(0)';
-        }, 10);
-        
-        // Auto remove after 3 seconds
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            notification.style.transform = 'translateX(50px)';
-            notification.addEventListener('transitionend', function() {
-                notification.remove();
-            });
-        }, 3000);
-    };
-});
-</script>
-{% endblock %}
+console.log("=== DIRECT SCRIPT LOADING ===");
+console.log("JavaScript is working!");
 
+// Simple test function immediately available
+window.testRemoveItem = function(partId) {
+    console.log("TEST FUNCTION CALLED for part:", partId);
+    
+    // Find cart item
+    const cartItem = document.querySelector(`.cart-item[data-part-id="${partId}"]`);
+    if (!cartItem) {
+        console.log("Cart item not found");
+        return;
+    }
+    
+    // Get quantity element
+    const quantityElement = cartItem.querySelector('.quantity-display');
+    if (!quantityElement) {
+        console.log("Quantity element not found");
+        return;
+    }
+    
+    const currentQuantity = parseInt(quantityElement.textContent.trim());
+    const newQuantity = Math.max(0, currentQuantity - 1);
+    
+    console.log("Current:", currentQuantity, "New:", newQuantity);
+    
+    // Update quantity display
+    quantityElement.textContent = newQuantity;
+    
+    // Update item total
+    const priceElement = cartItem.querySelector('.product-price');
+    const itemTotalElement = cartItem.querySelector('.item-total');
+    
+    if (priceElement && itemTotalElement) {
+        const priceText = priceElement.textContent.trim();
+        const match = priceText.match(/EGP\s+(\d+(\.\d+)?)/);
+        
+        if (match && match[1]) {
+            const price = parseFloat(match[1]);
+            const totalPrice = price * newQuantity;
+            itemTotalElement.textContent = `EGP ${totalPrice.toFixed(2)}`;
+            console.log("Updated item total to:", totalPrice);
+        }
+    }
+    
+    // Update cart totals
+    let subtotal = 0;
+    let totalItems = 0;
+    
+    document.querySelectorAll('.cart-item').forEach(item => {
+        const itemTotal = item.querySelector('.item-total');
+        const quantity = item.querySelector('.quantity-display');
+        
+        if (itemTotal && quantity) {
+            const priceMatch = itemTotal.textContent.match(/EGP\s+(\d+(\.\d+)?)/);
+            if (priceMatch && priceMatch[1]) {
+                subtotal += parseFloat(priceMatch[1]);
+            }
+            totalItems += parseInt(quantity.textContent.trim());
+        }
+    });
+    
+    // Update summary
+    const subtotalElement = document.getElementById('cart-subtotal');
+    const totalElement = document.getElementById('cart-total');
+    const itemCountElement = document.querySelector('.item-count');
+    
+    if (subtotalElement) subtotalElement.textContent = `EGP ${subtotal.toFixed(2)}`;
+    if (totalElement) totalElement.textContent = `EGP ${subtotal.toFixed(2)}`;
+    if (itemCountElement) itemCountElement.textContent = `${totalItems} item${totalItems !== 1 ? 's' : ''}`;
+    
+    console.log("Updated totals - Subtotal:", subtotal, "Items:", totalItems);
+};
+
+// Set up button click handlers when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM loaded, setting up buttons...");
+    
+    const buttons = document.querySelectorAll('.remove-item-btn');
+    console.log("Found", buttons.length, "buttons");
+    
+    buttons.forEach((btn, index) => {
+        const partId = btn.getAttribute('data-part-id');
+        console.log(`Setting up button ${index + 1} for part ${partId}`);
+        
+        btn.onclick = function(e) {
+            e.preventDefault();
+            console.log("Button clicked for part:", partId);
+            testRemoveItem(partId);
+        };
+    });
+    
+    console.log("Button setup complete!");
+});
+
+console.log("Script loaded successfully!");
+</script>
+
+{% endblock %}
