@@ -1,7 +1,7 @@
 [deploy]
 healthcheckPath = "/"
 healthcheckTimeout = 100
-restartPolicyType = "on-failure"
+restartPolicy = "on-failure"
 
 [build]
 builder = "DOCKERFILE"
