@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "python -m pip install poetry && poetry install"
+watchPatterns = ["**/*.py", "poetry.lock", "pyproject.toml"]
 
 [deploy]
 startCommand = "gunicorn ecm_website.wsgi"

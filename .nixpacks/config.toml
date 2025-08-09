@@ -1,15 +1,18 @@
-providers:
-  - nixpkgs
-  - python
+[phases.setup]
+aptPkgs = ["python3-pip", "python3-venv", "build-essential"]
+nixPkgs = ["python313", "poetry"]
 
-phases:
-  setup:
-    cmds:
-      - python -m pip install --upgrade pip
-      - curl -sSL https://install.python-poetry.org | python3 -
-  build:
-    cmds:
-      - poetry install
-      - python manage.py collectstatic --noinput
-  start:
-    cmd: gunicorn ecm_website.wsgi
+[phases.install]
+cmds = [
+    "python -m venv /opt/venv",
+    ". /opt/venv/bin/activate",
+    "pip install --upgrade pip",
+    "poetry config virtualenvs.create false",
+    "poetry install --no-dev --no-interaction --no-ansi"
+]
+
+[phases.build]
+cmds = ["python manage.py collectstatic --noinput"]
+
+[start]
+cmd = "gunicorn ecm_website.wsgi"
