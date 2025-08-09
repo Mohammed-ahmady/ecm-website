@@ -34,13 +34,12 @@ else:
     # In production, require the environment variable with no default
     SECRET_KEY = env('SECRET_KEY')
 
-# Allowed hosts for ngrok and local development
+# Allowed hosts
 ALLOWED_HOSTS = [
     'localhost', 
     '127.0.0.1',
-    'cowbird-advanced-infinitely.ngrok-free.app',
-    '.ngrok-free.app',
-    '.ngrok.io',
+    'magiruscenter.me',
+    '.railway.app',
 ]
 
 # CSRF trusted origins
@@ -66,6 +65,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise for static files
     'corsheaders.middleware.CorsMiddleware',  # CORS headers - must be near the top
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -107,9 +107,15 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ecm_website.wsgi.application'
 
 
-# Database
+# Database configuration with SSL for production
+import dj_database_url
+
 DATABASES = {
-    'default': env.db_url('DATABASE_URL', default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'))
+    'default': dj_database_url.config(
+        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
+        conn_max_age=600,
+        ssl_require=True,
+    )
 }
 
 
@@ -138,12 +144,15 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
     BASE_DIR / 'ecm_website/static',
 ]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# WhiteNoise configuration
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Media files
 MEDIA_URL = '/media/'
