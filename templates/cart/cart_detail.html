@@ -10,6 +10,7 @@
 {% block content %}
 <div class="cart-detail-page">
 <div class="main-container">
+    {% csrf_token %}
     <!-- Header Section -->
     <header class="header-section">
         <a href="{% url 'parts:part_list' %}" class="continue-shopping">
@@ -101,8 +102,58 @@
 
                 <div class="payment-method">
                     <p class="payment-title">Payment method <span class="info-icon">&#9432;</span></p>
-                    <p class="card-details">To be selected at checkout</p>
-                    <a href="#" class="edit-btn">Edit</a>
+                    <p class="card-details" id="selected-payment-method">{{ payment_method_display }}</p>
+                    <a href="#" class="edit-btn" id="edit-payment-btn">Edit</a>
+                    
+                    <!-- Payment Method Options (Hidden by default) -->
+                    <div id="payment-options" class="payment-options" style="display: none; margin-top: 1rem; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb;">
+                        <h4 style="margin: 0 0 0.75rem 0; font-weight: 600; font-size: 0.875rem;">Select Payment Method:</h4>
+                        
+                        <div class="payment-option" style="margin-bottom: 0.5rem;">
+                            <label style="display: flex; align-items: center; cursor: pointer; padding: 0.5rem; border-radius: 6px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#f3f4f6'" onmouseout="this.style.backgroundColor='transparent'">
+                                <input type="radio" name="payment_method" value="cod" checked style="margin-right: 0.75rem;">
+                                <div>
+                                    <div style="font-weight: 600; font-size: 0.875rem; color: #1f2937;">Cash on Delivery (COD)</div>
+                                    <div style="font-size: 0.75rem; color: #6b7280;">Pay when you receive your order</div>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <div class="payment-option" style="margin-bottom: 0.5rem;">
+                            <label style="display: flex; align-items: center; cursor: pointer; padding: 0.5rem; border-radius: 6px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#f3f4f6'" onmouseout="this.style.backgroundColor='transparent'">
+                                <input type="radio" name="payment_method" value="bank_transfer" style="margin-right: 0.75rem;">
+                                <div>
+                                    <div style="font-weight: 600; font-size: 0.875rem; color: #1f2937;">Bank Transfer</div>
+                                    <div style="font-size: 0.75rem; color: #6b7280;">Pay via bank transfer</div>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <div class="payment-option" style="margin-bottom: 0.5rem;">
+                            <label style="display: flex; align-items: center; cursor: pointer; padding: 0.5rem; border-radius: 6px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#f3f4f6'" onmouseout="this.style.backgroundColor='transparent'">
+                                <input type="radio" name="payment_method" value="installments" style="margin-right: 0.75rem;">
+                                <div>
+                                    <div style="font-weight: 600; font-size: 0.875rem; color: #1f2937;">Installments</div>
+                                    <div style="font-size: 0.75rem; color: #6b7280;">Pay in monthly installments</div>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <div class="payment-option" style="margin-bottom: 0.5rem;">
+                            <label style="display: flex; align-items: center; cursor: pointer; padding: 0.5rem; border-radius: 6px; transition: background-color 0.2s;" onmouseover="this.style.backgroundColor='#f3f4f6'" onmouseout="this.style.backgroundColor='transparent'">
+                                <input type="radio" name="payment_method" value="mobile_wallet" style="margin-right: 0.75rem;">
+                                <div>
+                                    <div style="font-weight: 600; font-size: 0.875rem; color: #1f2937;">Mobile Wallets</div>
+                                    <div style="font-size: 0.75rem; color: #6b7280;">Vodafone Cash, Etisalat Cash, Orange Cash, WE Pay</div>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+                            <button type="button" id="cancel-payment-btn" style="background: transparent; border: 1px solid #d1d5db; color: #4b5563; padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.875rem; margin-right: 0.5rem; cursor: pointer;">Cancel</button>
+                            <button type="button" id="save-payment-btn" style="background: #ef6c00; border: none; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; font-size: 0.875rem; cursor: pointer;">Save</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="discount-code">
@@ -233,6 +284,30 @@ window.updateItemQuantity = function(partId, change) {
         }
     }
     
+    // Send AJAX request to update quantity in backend
+    fetch('/cart/update-quantity/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            part_id: partId,
+            quantity: newQuantity
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log("Backend updated successfully", data);
+        } else {
+            console.error("Failed to update backend:", data.error);
+        }
+    })
+    .catch(error => {
+        console.error("Error updating backend:", error);
+    });
+
     // Update cart totals
     updateCartTotals();
 };
@@ -305,6 +380,83 @@ document.addEventListener('DOMContentLoaded', function() {
             updateItemQuantity(partId, +1);
         };
     });
+    
+    // Set up payment method editing
+    const editPaymentBtn = document.getElementById('edit-payment-btn');
+    const paymentOptions = document.getElementById('payment-options');
+    const cancelPaymentBtn = document.getElementById('cancel-payment-btn');
+    const savePaymentBtn = document.getElementById('save-payment-btn');
+    const selectedPaymentMethod = document.getElementById('selected-payment-method');
+    
+    // Check the correct radio button based on the currently displayed payment method
+    function updateSelectedRadioButton() {
+        const currentMethod = selectedPaymentMethod.textContent.trim();
+        let valueToSelect = 'cod';
+        
+        if (currentMethod.includes('Bank Transfer')) valueToSelect = 'bank_transfer';
+        else if (currentMethod.includes('Installments')) valueToSelect = 'installments';
+        else if (currentMethod.includes('Mobile Wallets')) valueToSelect = 'mobile_wallet';
+        
+        const radioToSelect = document.querySelector(`input[name="payment_method"][value="${valueToSelect}"]`);
+        if (radioToSelect) radioToSelect.checked = true;
+    }
+    
+    if (editPaymentBtn && paymentOptions) {
+        editPaymentBtn.onclick = function(e) {
+            e.preventDefault();
+            console.log("Edit payment method clicked");
+            updateSelectedRadioButton(); // Make sure the correct option is selected
+            paymentOptions.style.display = 'block';
+            editPaymentBtn.style.display = 'none';
+        };
+        
+        if (cancelPaymentBtn) {
+            cancelPaymentBtn.onclick = function(e) {
+                e.preventDefault();
+                console.log("Cancel payment method editing");
+                paymentOptions.style.display = 'none';
+                editPaymentBtn.style.display = 'inline';
+            };
+        }
+        
+        if (savePaymentBtn) {
+            savePaymentBtn.onclick = function(e) {
+                e.preventDefault();
+                console.log("Save payment method");
+                
+                // Get selected payment method
+                const selectedRadio = document.querySelector('input[name="payment_method"]:checked');
+                if (selectedRadio) {
+                    // Send AJAX request to save payment method
+                    fetch('/cart/update-payment/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        },
+                        body: JSON.stringify({
+                            payment_method: selectedRadio.value
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            selectedPaymentMethod.textContent = data.display_text;
+                            console.log("Payment method updated to:", data.display_text);
+                        } else {
+                            console.error("Failed to update payment method:", data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error updating payment method:", error);
+                    });
+                }
+                
+                paymentOptions.style.display = 'none';
+                editPaymentBtn.style.display = 'inline';
+            };
+        }
+    }
     
     console.log("Button setup complete!");
 });

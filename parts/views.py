@@ -65,10 +65,22 @@ def cart_detail(request):
     cart_items = cart.get_items()
     total_price = cart.get_total_price()
     
+    # Get selected payment method from session
+    selected_payment_method = request.session.get('selected_payment_method', 'cod')
+    payment_methods = {
+        'cod': 'Cash on Delivery (COD)',
+        'bank_transfer': 'Bank Transfer',
+        'installments': 'Installments',
+        'mobile_wallet': 'Mobile Wallets (Vodafone Cash, etc.)'
+    }
+    payment_method_display = payment_methods.get(selected_payment_method, 'Cash on Delivery (COD)')
+    
     context = {
         'cart_items': cart_items,
         'total_price': total_price,
         'total_items': cart.get_total_items(),
+        'selected_payment_method': selected_payment_method,
+        'payment_method_display': payment_method_display,
     }
     return render(request, 'cart/cart_detail.html', context)
 
@@ -164,6 +176,84 @@ def remove_from_cart(request, part_id):
         return redirect('parts:cart_detail')
 
 
+@require_POST 
+@csrf_exempt
+def update_cart_quantity(request):
+    """
+    Update cart item quantity via AJAX.
+    
+    Expects JSON data with part_id and quantity.
+    """
+    try:
+        data = json.loads(request.body)
+        part_id = data.get('part_id')
+        quantity = int(data.get('quantity', 1))
+        
+        # Use both cart systems to ensure consistency
+        cart = ModernCart(request)
+        part = get_object_or_404(Part, id=part_id)
+        
+        if quantity > 0:
+            cart_item = cart.update(part, quantity)
+            return JsonResponse({
+                'success': True,
+                'part_id': part_id,
+                'quantity': quantity,
+                'item_total': float(cart_item.total_price) if cart_item.part.price else 0,
+                'cart_total': float(cart.get_total_price()),
+                'total_items': cart.get_total_items()
+            })
+        else:
+            # Remove item if quantity is 0
+            cart.remove(part)
+            return JsonResponse({
+                'success': True,
+                'part_id': part_id,
+                'quantity': 0,
+                'item_removed': True,
+                'cart_total': float(cart.get_total_price()),
+                'total_items': cart.get_total_items()
+            })
+            
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
+@require_POST 
+@csrf_exempt
+def update_payment_method(request):
+    """
+    Update payment method selection via AJAX.
+    
+    Expects JSON data with payment_method.
+    """
+    try:
+        data = json.loads(request.body)
+        payment_method = data.get('payment_method', 'cod')
+        
+        # Store payment method in session
+        request.session['selected_payment_method'] = payment_method
+        
+        # Get display text for the payment method
+        payment_methods = {
+            'cod': 'Cash on Delivery (COD)',
+            'bank_transfer': 'Bank Transfer',
+            'installments': 'Installments',
+            'mobile_wallet': 'Mobile Wallets (Vodafone Cash, etc.)'
+        }
+        
+        display_text = payment_methods.get(payment_method, 'Cash on Delivery (COD)')
+        
+        return JsonResponse({
+            'success': True,
+            'payment_method': payment_method,
+            'display_text': display_text
+        })
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
+
 def checkout_page(request):
     """
     Handle the checkout process for placing orders.
@@ -177,6 +267,7 @@ def checkout_page(request):
     Returns:
         Checkout form template or order success page
     """
+    # Ensure we're using the same cart system throughout
     cart = ModernCart(request)
     cart_items = cart.get_items()
     
@@ -185,6 +276,16 @@ def checkout_page(request):
         return redirect('parts:part_list')
     
     total_price = cart.get_total_price()
+    
+    # Get selected payment method from session
+    selected_payment_method = request.session.get('selected_payment_method', 'cod')
+    payment_methods = {
+        'cod': 'Cash on Delivery (COD)',
+        'bank_transfer': 'Bank Transfer',
+        'installments': 'Installments',
+        'mobile_wallet': 'Mobile Wallets (Vodafone Cash, etc.)'
+    }
+    payment_method_display = payment_methods.get(selected_payment_method, 'Cash on Delivery (COD)')
     
     if request.method == 'POST':
         try:
@@ -197,7 +298,8 @@ def checkout_page(request):
                 postal_code=request.POST.get('postal_code', ''),
                 country=request.POST.get('country', 'Egypt'),
                 total_amount=total_price,
-                notes=request.POST.get('notes', '')
+                notes=request.POST.get('notes', ''),
+                payment_method=selected_payment_method  # Store the selected payment method
             )
             
             for cart_item in cart_items:
@@ -220,6 +322,8 @@ def checkout_page(request):
         'cart_items': cart_items,
         'total_price': total_price,
         'total_items': cart.get_total_items(),
+        'selected_payment_method': selected_payment_method,
+        'payment_method_display': payment_method_display,
     }
     return render(request, 'cart/checkout.html', context)
 
