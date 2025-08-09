@@ -4,11 +4,11 @@ FROM python:3.13-slim
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    DEBUG=False \
-    ALLOWED_HOSTS=".railway.app,magiruscenter.me" \
+    DEBUG=True \
+    ALLOWED_HOSTS="*" \
     DJANGO_SETTINGS_MODULE=ecm_website.settings \
     PYTHONPATH=/app \
-    PORT=8000
+    PORT=${PORT:-8000}
 
 # Set work directory
 WORKDIR /app
