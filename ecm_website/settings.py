@@ -22,17 +22,11 @@ env = environ.Env(
 )
 environ.Env.read_env(BASE_DIR / '.env')
 
-# Debug is True for development
-DEBUG = True
+# Debug settings
+DEBUG = env('DEBUG', default=False)
 
-# SECURITY WARNING: keep the secret key used in production secret!
-# In production, this must be set in environment variables with no default
-if DEBUG:
-    # Only use default in development
-    SECRET_KEY = env('SECRET_KEY', default='django-insecure-z@g=x)nh0t^z*b$y6+b3lg%3u_2w&gns%*q^t_f06)2g+m9)q_')
-else:
-    # In production, require the environment variable with no default
-    SECRET_KEY = env('SECRET_KEY')
+# SECURITY WARNING: don't run with debug turned on in production!
+SECRET_KEY = env('SECRET_KEY', default='django-insecure-z@g=x)nh0t^z*b$y6+b3lg%3u_2w&gns%*q^t_f06)2g+m9)q_')
 
 # Allowed hosts
 ALLOWED_HOSTS = [

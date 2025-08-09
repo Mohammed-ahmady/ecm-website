@@ -2,12 +2,13 @@
 FROM python:3.13-slim
 
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV DEBUG=False
-ENV ALLOWED_HOSTS=".railway.app,magiruscenter.me"
-ENV DJANGO_SETTINGS_MODULE=ecm_website.settings
-ENV PYTHONPATH=/app
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBUG=False \
+    ALLOWED_HOSTS=".railway.app,magiruscenter.me" \
+    DJANGO_SETTINGS_MODULE=ecm_website.settings \
+    PYTHONPATH=/app \
+    PORT=8000
 
 # Set work directory
 WORKDIR /app
@@ -19,9 +20,9 @@ RUN apt-get update && \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install dependencies
+# Copy requirements first to leverage Docker cache
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy project files
 COPY . .
@@ -29,8 +30,27 @@ COPY . .
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
+# Create and set proper permissions for media folder
+RUN mkdir -p /app/media && \
+    chmod -R 755 /app/media
+
 # Expose port
 EXPOSE 8000
 
-# Run gunicorn
-CMD ["gunicorn", "ecm_website.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Create a non-root user
+RUN adduser --disabled-password --gecos "" django
+
+# Give proper permissions to the non-root user
+RUN chown -R django:django /app
+
+# Switch to non-root user
+USER django
+
+# Run gunicorn with proper settings
+CMD gunicorn ecm_website.wsgi:application --bind 0.0.0.0:$PORT \
+    --workers 2 \
+    --threads 2 \
+    --timeout 120 \
+    --access-logfile - \
+    --error-logfile - \
+    --log-level debug
