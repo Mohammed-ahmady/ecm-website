@@ -1,0 +1,15 @@
+providers:
+  - nixpkgs
+  - python
+
+phases:
+  setup:
+    cmds:
+      - python -m pip install --upgrade pip
+      - curl -sSL https://install.python-poetry.org | python3 -
+  build:
+    cmds:
+      - poetry install
+      - python manage.py collectstatic --noinput
+  start:
+    cmd: gunicorn ecm_website.wsgi

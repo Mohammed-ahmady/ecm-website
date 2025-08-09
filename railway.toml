@@ -1,0 +1,13 @@
+[build]
+builder = "nixpacks"
+buildCommand = "python -m pip install poetry && poetry install"
+
+[deploy]
+startCommand = "gunicorn ecm_website.wsgi"
+healthcheckPath = "/"
+healthcheckTimeout = 100
+restartPolicyType = "never"
+
+[env]
+PYTHON_VERSION = "3.13"
+NIXPACKS_PYTHON_VERSION = "3.13"
