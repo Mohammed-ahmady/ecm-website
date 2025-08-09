@@ -11,9 +11,6 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-# Initialize Sentry for error tracking in production
-from ecm_website.sentry import init_sentry
-
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ecm_website.settings')
 
 application = get_wsgi_application()

@@ -7,6 +7,7 @@ ENV PYTHONUNBUFFERED=1
 ENV DEBUG=False
 ENV ALLOWED_HOSTS=".railway.app,magiruscenter.me"
 ENV DJANGO_SETTINGS_MODULE=ecm_website.settings
+ENV PYTHONPATH=/app
 
 # Set work directory
 WORKDIR /app
