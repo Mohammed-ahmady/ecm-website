@@ -1,13 +1,8 @@
-[build]
-builder = "nixpacks"
-watchPatterns = ["**/*.py", "poetry.lock", "pyproject.toml"]
-
 [deploy]
-startCommand = "gunicorn ecm_website.wsgi"
 healthcheckPath = "/"
 healthcheckTimeout = 100
-restartPolicyType = "never"
+restartPolicyType = "on-failure"
 
-[env]
-PYTHON_VERSION = "3.13"
-NIXPACKS_PYTHON_VERSION = "3.13"
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "Dockerfile"
