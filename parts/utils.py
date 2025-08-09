@@ -10,31 +10,68 @@ class ModernCart:
     
     def __init__(self, request):
         self.session = request.session
+        
+        # Ensure we have a valid session key
         if not request.session.session_key:
             request.session.create()
+            
         self.session_key = request.session.session_key
+        
+        # Set a longer session expiry for the cart (2 weeks)
+        request.session.set_expiry(60*60*24*14)  # 14 days in seconds
+        
+        # Mark session as modified to ensure it gets saved
+        request.session.modified = True
 
     def add(self, part, quantity=1):
-        """Add a part to the cart or increase its quantity"""
+        """
+        Add a part to the cart or increase its quantity
+        
+        Raises:
+            ValueError: If the requested quantity exceeds available stock
+        """
+        # Check if we have enough stock
+        if part.stock < quantity:
+            raise ValueError(f"Sorry, only {part.stock} units of {part.name} are available.")
+            
+        # Get or create the cart item
         cart_item, created = CartItem.objects.get_or_create(
             session_key=self.session_key,
             part=part,
             defaults={'quantity': quantity}
         )
+        
         if not created:
-            cart_item.quantity += quantity
+            # If updating existing item, check if new total exceeds stock
+            new_quantity = cart_item.quantity + quantity
+            if part.stock < new_quantity:
+                raise ValueError(f"Sorry, adding {quantity} more would exceed the available stock of {part.stock}.")
+                
+            cart_item.quantity = new_quantity
             cart_item.save()
+            
         return cart_item
 
     def update(self, part, quantity):
-        """Update the quantity of a part in the cart"""
+        """
+        Update the quantity of a part in the cart
+        
+        Raises:
+            ValueError: If the requested quantity exceeds available stock
+        """
         try:
             cart_item = CartItem.objects.get(session_key=self.session_key, part=part)
+            
             if quantity > 0:
+                # Check if we have enough stock for the requested quantity
+                if part.stock < quantity:
+                    raise ValueError(f"Sorry, only {part.stock} units of {part.name} are available.")
+                    
                 cart_item.quantity = quantity
                 cart_item.save()
                 return cart_item
             else:
+                # Remove item if quantity is 0
                 cart_item.delete()
                 return None
         except CartItem.DoesNotExist:
@@ -45,8 +82,8 @@ class ModernCart:
         CartItem.objects.filter(session_key=self.session_key, part=part).delete()
 
     def get_items(self):
-        """Get all items in the cart"""
-        return CartItem.objects.filter(session_key=self.session_key).select_related('part')
+        """Get all items in the cart with optimized database queries"""
+        return CartItem.objects.filter(session_key=self.session_key).select_related('part', 'part__category').prefetch_related('part__truck_models')
 
     def get_total_price(self):
         """Calculate total price of all items in cart"""

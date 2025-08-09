@@ -22,11 +22,17 @@ env = environ.Env(
 )
 environ.Env.read_env(BASE_DIR / '.env')
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY', default='django-insecure-z@g=x)nh0t^z*b$y6+b3lg%3u_2w&gns%*q^t_f06)2g+m9)q_')
-
-# SECURITY WARNING: don't run with debug turned on in production!
+# Debug is True for development
 DEBUG = True
+
+# SECURITY WARNING: keep the secret key used in production secret!
+# In production, this must be set in environment variables with no default
+if DEBUG:
+    # Only use default in development
+    SECRET_KEY = env('SECRET_KEY', default='django-insecure-z@g=x)nh0t^z*b$y6+b3lg%3u_2w&gns%*q^t_f06)2g+m9)q_')
+else:
+    # In production, require the environment variable with no default
+    SECRET_KEY = env('SECRET_KEY')
 
 # Allowed hosts for ngrok and local development
 ALLOWED_HOSTS = [
@@ -54,11 +60,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'corsheaders',  # CORS headers support
     'parts',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # CORS headers - must be near the top
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -66,6 +74,17 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# CORS settings
+CORS_ALLOWED_ORIGINS = [
+    'http://localhost:8000',
+    'http://127.0.0.1:8000',
+]
+
+# Security settings
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+X_FRAME_OPTIONS = 'DENY'
 
 ROOT_URLCONF = 'ecm_website.urls'
 
@@ -145,21 +164,73 @@ if DEBUG:
     SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
     SESSION_COOKIE_AGE = 3600  # 1 hour instead of 2 weeks
     
-    # Reduce logging verbosity
+    # Comprehensive logging configuration
     LOGGING = {
         'version': 1,
         'disable_existing_loggers': False,
+        'formatters': {
+            'verbose': {
+                'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+                'style': '{',
+            },
+            'simple': {
+                'format': '{levelname} {message}',
+                'style': '{',
+            },
+        },
+        'filters': {
+            'require_debug_true': {
+                '()': 'django.utils.log.RequireDebugTrue',
+            },
+            'require_debug_false': {
+                '()': 'django.utils.log.RequireDebugFalse',
+            },
+        },
         'handlers': {
+            'console': {
+                'level': 'INFO',
+                'filters': ['require_debug_true'],
+                'class': 'logging.StreamHandler',
+                'formatter': 'simple',
+            },
             'file': {
                 'level': 'ERROR',
                 'class': 'logging.FileHandler',
                 'filename': 'django_errors.log',
+                'formatter': 'verbose',
+            },
+            'security_file': {
+                'level': 'INFO',
+                'class': 'logging.FileHandler',
+                'filename': 'security.log',
+                'formatter': 'verbose',
+            },
+            'mail_admins': {
+                'level': 'ERROR',
+                'filters': ['require_debug_false'],
+                'class': 'django.utils.log.AdminEmailHandler',
+                'formatter': 'verbose',
             },
         },
         'loggers': {
             'django': {
-                'handlers': ['file'],
+                'handlers': ['console', 'file'],
+                'level': 'INFO',
+                'propagate': True,
+            },
+            'django.request': {
+                'handlers': ['file', 'mail_admins'],
                 'level': 'ERROR',
+                'propagate': False,
+            },
+            'django.security': {
+                'handlers': ['security_file', 'mail_admins'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'parts': {  # Application-specific logger
+                'handlers': ['console', 'file'],
+                'level': 'INFO',
                 'propagate': True,
             },
         },

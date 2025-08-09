@@ -3,20 +3,27 @@ from django.views.generic import ListView, DetailView, CreateView
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
+from django.db import transaction
+from django_ratelimit.decorators import ratelimit
 import json
+import logging
 
 from .models import Part, Category, TruckModel, Inquiry, CartItem, Order, OrderItem
 from .forms import InquiryForm
 from .utils import ModernCart, get_cart_response_data, is_ajax_request, get_search_queryset
 
+# Set up logger for this module
+logger = logging.getLogger('parts')
+
 @require_POST
+@ratelimit(key='ip', rate='10/m', method=['POST'], block=True)
 def add_to_cart(request, part_id):
     """
     Add a part to the shopping cart.
     
     Handles both AJAX and form submissions. Increases quantity if part already exists in cart.
+    Rate limited to 10 requests per minute per IP to prevent abuse.
     
     Args:
         request: HTTP request object
@@ -34,21 +41,32 @@ def add_to_cart(request, part_id):
     else:
         quantity = int(request.POST.get('quantity', 1))
     
-    cart_item = cart.add(part=part, quantity=quantity)
+    try:
+        cart_item = cart.add(part=part, quantity=quantity)
+        
+        if is_ajax_request(request):
+            cart_count = CartItem.objects.filter(session_key=request.session.session_key).count()
+            return JsonResponse({
+                'success': True,
+                'message': f'{part.name} added to cart!',
+                'cart_count': cart_count,
+                'cart_total_items': cart.get_total_items(),
+                'cart_total_price': float(cart.get_total_price()),
+                'item_total_price': float(cart_item.total_price)
+            })
+        
+        messages.success(request, f'{part.name} added to cart!')
+        return redirect('parts:cart_detail')
     
-    if is_ajax_request(request):
-        cart_count = CartItem.objects.filter(session_key=request.session.session_key).count()
-        return JsonResponse({
-            'success': True,
-            'message': f'{part.name} added to cart!',
-            'cart_count': cart_count,
-            'cart_total_items': cart.get_total_items(),
-            'cart_total_price': float(cart.get_total_price()),
-            'item_total_price': float(cart_item.total_price)
-        })
-    
-    messages.success(request, f'{part.name} added to cart!')
-    return redirect('parts:cart_detail')
+    except ValueError as e:
+        if is_ajax_request(request):
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=400)
+        
+        messages.error(request, str(e))
+        return redirect('parts:part_detail', slug=part.slug)
 
 
 def cart_detail(request):
@@ -62,8 +80,11 @@ def cart_detail(request):
         Rendered cart detail template with cart items and totals
     """
     cart = ModernCart(request)
-    cart_items = cart.get_items()
-    total_price = cart.get_total_price()
+    # Optimize query with select_related to avoid N+1 problem
+    cart_items = CartItem.objects.filter(session_key=request.session.session_key).select_related('part', 'part__category')
+    
+    # Calculate total price once to avoid multiple calculations
+    total_price = sum(item.total_price for item in cart_items)
     
     # Get selected payment method from session
     selected_payment_method = request.session.get('selected_payment_method', 'cod')
@@ -177,12 +198,13 @@ def remove_from_cart(request, part_id):
 
 
 @require_POST 
-@csrf_exempt
+@ratelimit(key='ip', rate='20/m', method=['POST'], block=True)
 def update_cart_quantity(request):
     """
     Update cart item quantity via AJAX.
     
     Expects JSON data with part_id and quantity.
+    Rate limited to 20 requests per minute per IP.
     """
     try:
         data = json.loads(request.body)
@@ -220,12 +242,13 @@ def update_cart_quantity(request):
 
 
 @require_POST 
-@csrf_exempt
+@ratelimit(key='ip', rate='10/m', method=['POST'], block=True)
 def update_payment_method(request):
     """
     Update payment method selection via AJAX.
     
     Expects JSON data with payment_method.
+    Rate limited to 10 requests per minute per IP.
     """
     try:
         data = json.loads(request.body)
@@ -289,33 +312,57 @@ def checkout_page(request):
     
     if request.method == 'POST':
         try:
-            order = Order.objects.create(
-                customer_name=request.POST['customer_name'],
-                customer_email=request.POST['customer_email'],
-                customer_phone=request.POST['customer_phone'],
-                shipping_address=request.POST['shipping_address'],
-                city=request.POST['city'],
-                postal_code=request.POST.get('postal_code', ''),
-                country=request.POST.get('country', 'Egypt'),
-                total_amount=total_price,
-                notes=request.POST.get('notes', ''),
-                payment_method=selected_payment_method  # Store the selected payment method
-            )
+            logger.info(f"Starting checkout process for session: {request.session.session_key}")
             
-            for cart_item in cart_items:
-                OrderItem.objects.create(
-                    order=order,
-                    part=cart_item.part,
-                    quantity=cart_item.quantity,
-                    price=cart_item.part.price or 0
+            # Use database transaction to ensure all operations succeed or fail together
+            with transaction.atomic():
+                order = Order.objects.create(
+                    customer_name=request.POST['customer_name'],
+                    customer_email=request.POST['customer_email'],
+                    customer_phone=request.POST['customer_phone'],
+                    shipping_address=request.POST['shipping_address'],
+                    city=request.POST['city'],
+                    postal_code=request.POST.get('postal_code', ''),
+                    country=request.POST.get('country', 'Egypt'),
+                    total_amount=total_price,
+                    notes=request.POST.get('notes', ''),
+                    payment_method=selected_payment_method  # Store the selected payment method
                 )
-            
-            cart.clear()
+                
+                logger.info(f"Created order #{order.order_id} for {order.customer_name}")
+                
+                for cart_item in cart_items:
+                    # Validate stock availability before creating order item
+                    if cart_item.part.stock < cart_item.quantity:
+                        error_msg = f"Not enough stock for {cart_item.part.name}. Only {cart_item.part.stock} available."
+                        logger.warning(f"Stock validation failed: {error_msg}")
+                        raise ValueError(error_msg)
+                    
+                    # Create order item
+                    OrderItem.objects.create(
+                        order=order,
+                        part=cart_item.part,
+                        quantity=cart_item.quantity,
+                        price=cart_item.part.price or 0
+                    )
+                    
+                    # Update stock level
+                    cart_item.part.stock -= cart_item.quantity
+                    cart_item.part.save()
+                    logger.info(f"Updated stock for part {cart_item.part.part_number}, new stock: {cart_item.part.stock}")
+                
+                # Clear the cart only if all operations succeed
+                cart.clear()
+                logger.info(f"Checkout completed successfully for order #{order.order_id}")
             
             messages.success(request, f'Order #{order.order_id} placed successfully! We will contact you soon.')
             return render(request, 'cart/order_success.html', {'order': order})
             
+        except ValueError as e:
+            logger.warning(f"Order validation error: {str(e)}")
+            messages.error(request, str(e))
         except Exception as e:
+            logger.exception(f"Unexpected error during checkout: {str(e)}")
             messages.error(request, 'There was an error processing your order. Please try again.')
     
     context = {
@@ -336,7 +383,8 @@ class PartListView(ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        queryset = super().get_queryset().filter(is_active=True)
+        # Use select_related for ForeignKey relationships and prefetch_related for M2M
+        queryset = super().get_queryset().filter(is_active=True).select_related('category').prefetch_related('truck_models')
         return get_search_queryset(queryset, self.request.GET)
 
     def get_context_data(self, **kwargs):
@@ -357,7 +405,7 @@ class PartDetailView(DetailView):
     slug_url_kwarg = 'slug'
 
     def get_queryset(self):
-        return super().get_queryset().filter(is_active=True)
+        return super().get_queryset().filter(is_active=True).select_related('category').prefetch_related('truck_models', 'images')
 
 
 class InquiryCreateView(CreateView):

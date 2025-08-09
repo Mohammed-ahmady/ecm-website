@@ -1,3 +1,4 @@
+
 {% load static %}
 <!DOCTYPE html>
 <html lang="en" class="h-full bg-gray-50">
@@ -86,6 +87,9 @@
     <!-- AOS for Scroll Animations -->
     <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
     <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+    <!-- CSRF Protection for AJAX -->
+    <script src="{% static 'js/csrf.js' %}"></script>
 
 
     {% block head_extra %}{% endblock %}

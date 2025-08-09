@@ -55,18 +55,25 @@ class Engine(models.Model):
         return self.name
 
 class Part(models.Model):
-    name = models.CharField(max_length=255)
-    part_number = models.CharField(max_length=100, unique=True, help_text="Unique identifier for the part")
+    name = models.CharField(max_length=255, db_index=True)
+    part_number = models.CharField(max_length=100, unique=True, db_index=True, help_text="Unique identifier for the part")
     description = models.TextField(blank=True, null=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, blank=True, related_name='parts')
     truck_models = models.ManyToManyField(TruckModel, blank=True, related_name='parts')
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Price in EGP")
     image = models.ImageField(upload_to='parts_images/', blank=True, null=True)
-    is_active = models.BooleanField(default=True, help_text="Designates whether this part should be available on the website.")
-    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True, db_index=True, help_text="Designates whether this part should be available on the website.")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
     slug = models.SlugField(max_length=255, unique=True, blank=True) # Add slug for cleaner URLs
     stock = models.PositiveIntegerField(default=0)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['name', 'is_active']),
+            models.Index(fields=['price']),
+            models.Index(fields=['stock']),
+        ]
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -161,13 +168,16 @@ class Inquiry(models.Model):
 
 class CartItem(models.Model):
     """Database-backed cart item for better persistence"""
-    session_key = models.CharField(max_length=40)
+    session_key = models.CharField(max_length=40, db_index=True)
     part = models.ForeignKey(Part, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-    added_at = models.DateTimeField(auto_now_add=True)
+    added_at = models.DateTimeField(auto_now_add=True, db_index=True)
     
     class Meta:
         unique_together = ('session_key', 'part')
+        indexes = [
+            models.Index(fields=['session_key', 'added_at']),
+        ]
     
     def __str__(self):
         return f"{self.part.name} (x{self.quantity})"
