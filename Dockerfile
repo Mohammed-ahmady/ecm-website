@@ -5,6 +5,8 @@ FROM python:3.13-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV DEBUG=False
+ENV ALLOWED_HOSTS=".railway.app,magiruscenter.me"
+ENV DJANGO_SETTINGS_MODULE=ecm_website.settings
 
 # Set work directory
 WORKDIR /app

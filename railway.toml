@@ -1,6 +1,6 @@
 [deploy]
-healthcheckPath = "/"
-healthcheckTimeout = 100
+healthcheckPath = "/health/"
+healthcheckTimeout = 300
 restartPolicy = "on-failure"
 
 [build]

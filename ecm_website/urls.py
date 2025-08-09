@@ -3,10 +3,12 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView # Only if you still use TemplateView for some pages
 from parts.views import InquiryCreateView, home_view # Import your specific views
+from .views import health_check
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
+    path('health/', health_check, name='health_check'),
     path('admin/', admin.site.urls),
     path('', home_view, name='home'), # Use the function-based home_view from parts.views
     path('about/', TemplateView.as_view(template_name='about.html'), name='about'),
