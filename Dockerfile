@@ -48,9 +48,12 @@ USER django
 
 # Run gunicorn with proper settings
 CMD gunicorn ecm_website.wsgi:application --bind 0.0.0.0:$PORT \
-    --workers 2 \
-    --threads 2 \
-    --timeout 120 \
+    --workers 1 \
+    --threads 1 \
+    --timeout 300 \
     --access-logfile - \
     --error-logfile - \
-    --log-level debug
+    --capture-output \
+    --enable-stdio-inheritance \
+    --log-level debug \
+    --reload

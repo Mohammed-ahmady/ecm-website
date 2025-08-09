@@ -9,32 +9,68 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
+
+from .logging import LOGGING
 import os
 import environ
+import logging.config
+import dj_database_url
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Environment variables
-env = environ.Env(
-    DEBUG=(bool, False)
-)
+env = environ.Env()
 environ.Env.read_env(BASE_DIR / '.env')
 
 # Debug settings
-DEBUG = env('DEBUG', default=False)
+DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-# SECURITY WARNING: don't run with debug turned on in production!
-SECRET_KEY = env('SECRET_KEY', default='django-insecure-z@g=x)nh0t^z*b$y6+b3lg%3u_2w&gns%*q^t_f06)2g+m9)q_')
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-z@g=x)nh0t^z*b$y6+b3lg%3u_2w&gns%*q^t_f06)2g+m9)q_')
+
+# Configure logging for production
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s',
+            'datefmt': '%d/%b/%Y %H:%M:%S'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django.server': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+    }
+}
 
 # Allowed hosts
-ALLOWED_HOSTS = [
-    'localhost', 
-    '127.0.0.1',
-    'magiruscenter.me',
-    '.railway.app',
-]
+ALLOWED_HOSTS = ['*']  # We'll restrict this in production later
 
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
@@ -101,17 +137,16 @@ TEMPLATES = [
 WSGI_APPLICATION = 'ecm_website.wsgi.application'
 
 
-# Database configuration with SSL for production
-import dj_database_url
-
+# Database configuration
+DATABASE_URL = os.getenv('DATABASE_URL', f'sqlite:///{BASE_DIR}/db.sqlite3')
 DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:///' + str(BASE_DIR / 'db.sqlite3'),
+    'default': dj_database_url.parse(
+        DATABASE_URL,
         conn_max_age=600,
-        ssl_require=True,
+        conn_health_checks=True,
+        ssl_require=True if not DATABASE_URL.startswith('sqlite') else False,
     )
 }
-
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -156,88 +191,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# =============================================================================
-# DEVELOPMENT MEMORY OPTIMIZATION SETTINGS
-# =============================================================================
-if DEBUG:
-    # Disable Django debug toolbar if installed to save memory
-    INTERNAL_IPS = []
-    
-    # Optimize session settings
-    SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
-    SESSION_COOKIE_AGE = 3600  # 1 hour instead of 2 weeks
-    
-    # Comprehensive logging configuration
-    LOGGING = {
-        'version': 1,
-        'disable_existing_loggers': False,
-        'formatters': {
-            'verbose': {
-                'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-                'style': '{',
-            },
-            'simple': {
-                'format': '{levelname} {message}',
-                'style': '{',
-            },
-        },
-        'filters': {
-            'require_debug_true': {
-                '()': 'django.utils.log.RequireDebugTrue',
-            },
-            'require_debug_false': {
-                '()': 'django.utils.log.RequireDebugFalse',
-            },
-        },
-        'handlers': {
-            'console': {
-                'level': 'INFO',
-                'filters': ['require_debug_true'],
-                'class': 'logging.StreamHandler',
-                'formatter': 'simple',
-            },
-            'file': {
-                'level': 'ERROR',
-                'class': 'logging.FileHandler',
-                'filename': 'django_errors.log',
-                'formatter': 'verbose',
-            },
-            'security_file': {
-                'level': 'INFO',
-                'class': 'logging.FileHandler',
-                'filename': 'security.log',
-                'formatter': 'verbose',
-            },
-            'mail_admins': {
-                'level': 'ERROR',
-                'filters': ['require_debug_false'],
-                'class': 'django.utils.log.AdminEmailHandler',
-                'formatter': 'verbose',
-            },
-        },
-        'loggers': {
-            'django': {
-                'handlers': ['console', 'file'],
-                'level': 'INFO',
-                'propagate': True,
-            },
-            'django.request': {
-                'handlers': ['file', 'mail_admins'],
-                'level': 'ERROR',
-                'propagate': False,
-            },
-            'django.security': {
-                'handlers': ['security_file', 'mail_admins'],
-                'level': 'INFO',
-                'propagate': False,
-            },
-            'parts': {  # Application-specific logger
-                'handlers': ['console', 'file'],
-                'level': 'INFO',
-                'propagate': True,
-            },
-        },
-    }
-    
-    # Optimize database queries
-    DATABASES['default']['CONN_MAX_AGE'] = 0  # Don't persist connections
+# Session settings
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+SESSION_COOKIE_AGE = 3600  # 1 hour
