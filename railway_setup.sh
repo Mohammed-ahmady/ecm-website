@@ -7,6 +7,10 @@ echo "Starting Railway deployment setup..."
 echo "Running database migrations..."
 python manage.py migrate --noinput
 
+# Fix Cloudinary URLs in database
+echo "Updating database records to use Cloudinary URLs..."
+python manage.py fix_cloudinary_urls
+
 # Create superuser if it doesn't exist (for admin access)
 echo "Setting up admin user..."
 python manage.py shell << EOF
@@ -22,10 +26,6 @@ if not User.objects.filter(username='admin').exists():
 else:
     print("Admin user already exists")
 EOF
-
-# Sync Cloudinary URLs for existing data
-echo "Syncing Cloudinary URLs..."
-python manage.py sync_cloudinary_urls
 
 # Collect static files
 echo "Collecting static files..."

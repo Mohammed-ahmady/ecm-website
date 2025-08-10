@@ -30,9 +30,10 @@ COPY . .
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
-# Copy and set permissions for setup script
+# Copy and set permissions for setup scripts
 COPY railway_setup.sh /app/
-RUN chmod +x /app/railway_setup.sh
+COPY start.sh /app/
+RUN chmod +x /app/railway_setup.sh /app/start.sh
 
 # Ensure media directory exists and set proper permissions
 RUN chmod -R 755 /app/media || mkdir -p /app/media && chmod -R 755 /app/media
@@ -49,14 +50,5 @@ RUN chown -R django:django /app
 # Switch to non-root user
 USER django
 
-# Run gunicorn with proper settings
-CMD gunicorn ecm_website.wsgi:application --bind 0.0.0.0:$PORT \
-    --workers 1 \
-    --threads 1 \
-    --timeout 300 \
-    --access-logfile - \
-    --error-logfile - \
-    --capture-output \
-    --enable-stdio-inheritance \
-    --log-level debug \
-    --reload
+# Use the startup script
+CMD ["/app/start.sh"]
