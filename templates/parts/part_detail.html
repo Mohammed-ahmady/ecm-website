@@ -47,12 +47,29 @@ input[type=number] {
 
                 <!-- Main Image -->
                 <div class="relative bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm flex-1">
-                    {% with part.images.all.0 as first_image %}
+                    {% if part.image_url %}
                         <img id="mainImage" loading="lazy"
-                             src="{{ first_image.image.url }}"
+                             src="{{ part.image_url }}"
                              alt="{{ part.name }}"
                              class="w-full h-64 md:h-80 lg:h-96 object-contain transition-all duration-300 ease-in-out hover:scale-105 cursor-zoom-in">
-                    {% endwith %}
+                    {% elif part.images.exists %}
+                        {% with part.images.all.0 as first_image %}
+                            <img id="mainImage" loading="lazy"
+                                 src="{{ first_image.image.url }}"
+                                 alt="{{ part.name }}"
+                                 class="w-full h-64 md:h-80 lg:h-96 object-contain transition-all duration-300 ease-in-out hover:scale-105 cursor-zoom-in">
+                        {% endwith %}
+                    {% elif part.image %}
+                        <img id="mainImage" loading="lazy"
+                             src="{{ part.image.url }}"
+                             alt="{{ part.name }}"
+                             class="w-full h-64 md:h-80 lg:h-96 object-contain transition-all duration-300 ease-in-out hover:scale-105 cursor-zoom-in">
+                    {% else %}
+                        <img id="mainImage" loading="lazy"
+                             src="{% static 'images/magirus.jpeg' %}"
+                             alt="{{ part.name }} (No Image Available)"
+                             class="w-full h-64 md:h-80 lg:h-96 object-contain transition-all duration-300 ease-in-out hover:scale-105 cursor-zoom-in">
+                    {% endif %}
                 </div>
             </div>
 
