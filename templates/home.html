@@ -1,7 +1,33 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Your Source for Magirus Parts{% endblock %}
+{% block title %}European Center for Magirus - Authentic Truck Parts{% endblock %}
+
+{% block meta_description %}The European Center for Magirus offers genuine truck parts, unmatched quality, and fast worldwide shipping. Trusted by 120+ clients across 35+ countries.{% endblock %}
+
+{% block meta_keywords %}magirus parts, authentic truck parts, european center for magirus, spare parts, engine components{% endblock %}
+
+{% block head_extra %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "European Center for Magirus",
+  "url": "{{ request.build_absolute_uri }}",
+  "logo": "{{ request.build_absolute_uri }}{% static 'images/delivery-truck.png' %}",
+  "description": "The European Center for Magirus offers genuine truck parts with fast worldwide shipping.",
+  "address": {
+    "@type": "PostalAddress",
+    "addressCountry": "Egypt"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+201XXXXXXXXX",
+    "contactType": "customer service"
+  }
+}
+</script>
+{% endblock %}
 
 {% block content %}
 <main class="relative">
@@ -88,7 +114,7 @@
             <a href="{% url 'parts:part_list' %}?truck_model={{ model.slug }}" class="block bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
                 <div class="relative overflow-hidden">
                     {% if model.get_image_url %}
-                    <img src="{{ model.get_image_url }}" alt="{{ model.name }}" class="w-full h-64 object-cover object-center transition-transform duration-300 hover:scale-110">
+                    <img loading="lazy" src="{{ model.get_image_url }}" alt="{{ model.name }} - Magirus Truck Model" class="w-full h-64 object-cover object-center transition-transform duration-300 hover:scale-110" width="400" height="300">
                     {% else %}
                     <div class="w-full h-64 flex items-center justify-center bg-gray-200 text-gray-500 text-sm font-medium text-center p-4">
                         No Image Available

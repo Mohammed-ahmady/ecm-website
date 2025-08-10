@@ -3,7 +3,39 @@
 
 {% block title %}{{ part.name }} - European Center for Magirus{% endblock %}
 
+{% block meta_description %}{{ part.name }} - {{ part.part_number }} - {{ part.description|truncatewords:25 }} - European Center for Magirus provides genuine parts with fast shipping.{% endblock %}
+
+{% block meta_keywords %}{{ part.name }}, {{ part.part_number }}, magirus parts, truck parts, spare parts{% endblock %}
+
+{% block og_title %}{{ part.name }} | European Center for Magirus{% endblock %}
+{% block og_description %}{{ part.description|truncatewords:25 }}{% endblock %}
+{% block og_image %}{% if part.get_image_url %}{{ part.get_image_url }}{% else %}{% static 'images/magirus.jpeg' %}{% endif %}{% endblock %}
+
 {% block head_extra %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ part.name }}",
+  "image": "{% if part.get_image_url %}{{ part.get_image_url }}{% elif part.images.exists %}{{ part.images.all.0.image.url }}{% elif part.image %}{{ part.image.url }}{% else %}{% static 'images/magirus.jpeg' %}{% endif %}",
+  "description": "{{ part.description|default:part.name }}",
+  "mpn": "{{ part.part_number }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "Magirus"
+  },
+  {% if part.price %}
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ request.build_absolute_uri }}",
+    "priceCurrency": "EGP",
+    "price": "{{ part.price|floatformat:2 }}",
+    "availability": "{% if part.stock > 0 %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+    "itemCondition": "https://schema.org/NewCondition"
+  }
+  {% endif %}
+}
+</script>
 <style>
 /* Hide number input spin buttons */
 input[type=number]::-webkit-outer-spin-button,

@@ -1,7 +1,43 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}All Parts{% endblock %}
+{% block title %}Magirus Truck Parts Catalog - European Center for Magirus{% endblock %}
+
+{% block meta_description %}Find authentic Magirus truck parts in our comprehensive catalog. Browse by category, truck model, or part number. Fast shipping worldwide.{% endblock %}
+
+{% block meta_keywords %}magirus parts catalog, truck parts, spare parts, genuine magirus parts, truck spare parts{% endblock %}
+
+{% block head_extra %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "itemListElement": [
+    {% for part in parts %}
+    {
+      "@type": "ListItem",
+      "position": {{ forloop.counter }},
+      "item": {
+        "@type": "Product",
+        "name": "{{ part.name }}",
+        "image": "{% if part.get_image_url %}{{ part.get_image_url }}{% elif part.image %}{{ part.image.url }}{% else %}{% static 'images/magirus.jpeg' %}{% endif %}",
+        "description": "{{ part.description|default:part.name|truncatewords:10 }}",
+        "mpn": "{{ part.part_number }}",
+        "url": "{% url 'parts:part_detail' part.slug %}"
+        {% if part.price %},
+        "offers": {
+          "@type": "Offer",
+          "price": "{{ part.price|floatformat:2 }}",
+          "priceCurrency": "EGP"
+        }
+        {% endif %}
+      }
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+</script>
+{% endblock %}
 
 {% block content %}
 

@@ -4,29 +4,114 @@
 <html lang="en" class="h-full bg-gray-50">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#F97316">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>{% block title %}Magirus Parts | Authentic Truck Spare Parts{% endblock %}</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="{% block meta_description %}Find authentic Magirus truck parts for all models. Fast shipping worldwide with expert support and genuine quality spare parts.{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}magirus parts, truck parts, spare parts, genuine parts, magirus truck, iveco magirus, deutz magirus{% endblock %}">
+    <meta name="author" content="{{ company_info.name }}">
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:title" content="{% block og_title %}Magirus Parts | {{ company_name }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}Find authentic Magirus truck parts for all models. Fast shipping worldwide with expert support and genuine quality spare parts.{% endblock %}">
+    <meta property="og:image" content="{% block og_image %}{% static 'images/magirus.jpeg' %}{% endblock %}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="{{ company_name }}">
+    <meta property="og:locale" content="en_US">
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{% block twitter_title %}{{ company_name }} - Magirus Truck Parts{% endblock %}">
+    <meta name="twitter:description" content="{% block twitter_description %}Find authentic Magirus truck parts for all models with worldwide shipping.{% endblock %}">
+    <meta name="twitter:image" content="{% block twitter_image %}{% static 'images/magirus.jpeg' %}{% endblock %}">
+    
+    <!-- Search Engine Related -->
+    <meta name="robots" content="{% block robots %}index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1{% endblock %}">
+    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+    
+    <!-- Mobile App Tags -->
+    <meta name="application-name" content="{{ company_name }}">
+    <meta name="apple-mobile-web-app-title" content="{{ company_name }}">
 
     <!-- Favicon -->
     <link rel="icon" href="{% static 'images/delivery-truck.png' %}" type="image/png">
+    <link rel="apple-touch-icon" href="{% static 'images/delivery-truck.png' %}">
 
-    <!-- Google Fonts -->
+    <!-- Resource Hints -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <!-- Preload Critical Assets -->
+    <link rel="preload" href="{% static 'css/style.css' %}" as="style">
+    <link rel="preload" href="{% static 'css/custom.css' %}" as="style">
+    
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    <!-- Tailwind CSS -->
+    <!-- Stylesheets -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <link href="{% static 'css/custom.css' %}" rel="stylesheet">
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome (Load async for performance) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"></noscript>
+    
+    <!-- Prefetch and Preload for Common Navigation Destinations -->
+    <link rel="prefetch" href="{% url 'home' %}">
+    <link rel="prefetch" href="{% url 'about' %}">
+    <link rel="prefetch" href="{% url 'contact' %}">
+    {% if top_categories %}
+        <link rel="prefetch" href="{% url 'parts:part_list' %}">
+    {% endif %}
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
+    <!-- Structured Data for Organization -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "{{ company_name }}",
+        "url": "{{ request.scheme }}://{{ request.get_host }}/",
+        "logo": "{{ request.scheme }}://{{ request.get_host }}{% static 'images/delivery-truck.png' %}",
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "{{ company_info.phone }}",
+            "contactType": "customer service",
+            "areaServed": "Worldwide",
+            "availableLanguage": ["English", "Arabic"]
+        },
+        "sameAs": [
+            "{{ social_links.facebook }}",
+            "{{ social_links.instagram }}",
+            "{{ social_links.twitter }}"
+        ],
+        "address": {
+            "@type": "PostalAddress",
+            "addressCountry": "Egypt"
+        }
+    }
+    </script>
+    
+    <!-- Structured Data for Website -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "{{ company_name }}",
+        "url": "{{ request.scheme }}://{{ request.get_host }}/",
+        "potentialAction": {
+            "@type": "SearchAction",
+            "target": "{{ request.scheme }}://{{ request.get_host }}/parts/?search={search_term}",
+            "query-input": "required name=search_term"
+        }
+    }
+    </script>
+    
     <!-- Custom Fonts -->
     <style>
         /* Global Typography */
@@ -72,23 +157,27 @@
     
     {% block extra_css %}{% endblock %}
     
-    <!-- GSAP -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <!-- Swiper CSS -->
+    <!-- Swiper CSS - Critical CSS loads normally -->
     <link
         rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
     />
     
-
+    <!-- AOS for Scroll Animations - Loaded asynchronously -->
+    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet"></noscript>
+    
+    <!-- Non-critical JavaScript with defer attribute for better performance -->
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+    
     <!-- Swiper JS -->
-    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js" defer></script>
+    
     <!-- AOS for Scroll Animations -->
-    <link href="https://unpkg.com/aos@2.3.4/dist/aos.css" rel="stylesheet">
-    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+    <script src="https://unpkg.com/aos@2.3.4/dist/aos.js" defer></script>
 
-    <!-- CSRF Protection for AJAX -->
+    <!-- CSRF Protection for AJAX - Loaded early for AJAX operations -->
     <script src="{% static 'js/csrf.js' %}"></script>
 
 
@@ -155,11 +244,14 @@
 
     <!-- Footer -->
     <footer class="bg-gray-900 text-gray-300 py-10 mt-12">
-        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-8">
             <!-- About -->
             <div>
-                <h4 class="text-white text-xl font-semibold mb-4">Magirus Parts</h4>
-                <p class="text-sm leading-relaxed">Your trusted source for high-quality Magirus truck spare parts. We deliver genuine and reliable components worldwide.</p>
+                <h4 class="text-white text-xl font-semibold mb-4">{{ company_name }}</h4>
+                <p class="text-sm leading-relaxed">{{ site_description }}</p>
+                <div class="mt-4">
+                    <img src="{% static 'images/delivery-truck.png' %}" alt="{{ company_name }} Logo" class="h-10 w-auto">
+                </div>
             </div>
 
             <!-- Quick Links -->
@@ -173,25 +265,44 @@
                     <li><a href="{% url 'inquiry' %}" class="hover:text-orange-400 transition">Request a Quote</a></li>
                 </ul>
             </div>
+            
+            <!-- Popular Categories -->
+            <div>
+                <h4 class="text-white text-xl font-semibold mb-4">Top Categories</h4>
+                <ul class="space-y-2 text-sm">
+                    {% for category in top_categories %}
+                        <li><a href="{% url 'parts:part_list' %}?category={{ category.slug }}" class="hover:text-orange-400 transition">{{ category.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
 
             <!-- Contact + Social -->
             <div>
                 <h4 class="text-white text-xl font-semibold mb-4">Get in Touch</h4>
-                <p class="text-sm">Email: <a href="mailto:info@magirusparts.com" class="hover:text-orange-400 transition">info@magirusparts.com</a></p>
-                <p class="text-sm">Phone: +123 456 7890</p>
+                <p class="text-sm">Email: <a href="mailto:{{ company_info.email }}" class="hover:text-orange-400 transition">{{ company_info.email }}</a></p>
+                <p class="text-sm">Phone: <a href="tel:{{ company_info.phone }}" class="hover:text-orange-400 transition">{{ company_info.phone }}</a></p>
+                <p class="text-sm mt-2">Location: {{ company_info.address }}</p>
                 <div class="flex space-x-4 mt-4 text-xl">
-                    <a href="#" class="text-gray-400 hover:text-orange-400"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="text-gray-400 hover:text-orange-400"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="text-gray-400 hover:text-orange-400"><i class="fab fa-linkedin-in"></i></a>
-                    <a href="#" class="text-gray-400 hover:text-orange-400"><i class="fab fa-instagram"></i></a>
+                    <a href="{{ social_links.facebook }}" class="text-gray-400 hover:text-orange-400" aria-label="Facebook" target="_blank" rel="noopener"><i class="fab fa-facebook-f"></i></a>
+                    <a href="{{ social_links.twitter }}" class="text-gray-400 hover:text-orange-400" aria-label="Twitter" target="_blank" rel="noopener"><i class="fab fa-twitter"></i></a>
+                    <a href="{{ social_links.instagram }}" class="text-gray-400 hover:text-orange-400" aria-label="Instagram" target="_blank" rel="noopener"><i class="fab fa-instagram"></i></a>
                 </div>
             </div>
         </div>
 
 
         <!-- Bottom -->
-        <div class="container mx-auto px-4 mt-8 pt-6 border-t border-gray-700 text-center text-sm text-gray-500">
-            &copy; {% now "Y" %} Magirus Parts. All rights reserved.
+        <div class="container mx-auto px-4 mt-8 pt-6 border-t border-gray-700">
+            <div class="flex flex-wrap justify-between items-center">
+                <div class="text-sm text-gray-500 mb-4 md:mb-0">
+                    &copy; {% now "Y" %} {{ company_name }}. All rights reserved.
+                </div>
+                <div class="flex flex-wrap space-x-4 text-xs">
+                    <a href="/sitemap.xml" class="text-gray-500 hover:text-orange-400 transition">Sitemap</a>
+                    <a href="{% url 'about' %}#privacy-policy" class="text-gray-500 hover:text-orange-400 transition">Privacy Policy</a>
+                    <a href="{% url 'about' %}#terms" class="text-gray-500 hover:text-orange-400 transition">Terms of Service</a>
+                </div>
+            </div>
         </div>
         
     </footer>
@@ -540,6 +651,65 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+<!-- Google Analytics/Tag Manager - Add your tracking code here -->
+{% if is_production %}
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-XXXXXXXXXX');
+</script>
+{% endif %}
+
+<!-- Preload Critical Images -->
+<script>
+    // Preload important images after page load
+    window.addEventListener('load', function() {
+        const imagesToPreload = [
+            '{% static "images/magirus.jpeg" %}',
+            '{% static "images/delivery-truck.png" %}',
+            '{% static "images/truck.jpg" %}'
+        ];
+        
+        imagesToPreload.forEach(imgSrc => {
+            const img = new Image();
+            img.src = imgSrc;
+        });
+    });
+</script>
+
+<!-- Add schema.org BreadcrumbList dynamically -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const breadcrumbs = document.querySelector('.breadcrumbs');
+        if (breadcrumbs) {
+            const items = Array.from(breadcrumbs.querySelectorAll('li')).map((item, index) => {
+                const link = item.querySelector('a');
+                const name = item.textContent.trim();
+                const url = link ? link.href : window.location.href;
+                
+                return {
+                    "@type": "ListItem",
+                    "position": index + 1,
+                    "name": name,
+                    "item": url
+                };
+            });
+            
+            if (items.length > 0) {
+                const breadcrumbSchema = document.createElement('script');
+                breadcrumbSchema.type = 'application/ld+json';
+                breadcrumbSchema.textContent = JSON.stringify({
+                    "@context": "https://schema.org",
+                    "@type": "BreadcrumbList",
+                    "itemListElement": items
+                });
+                document.head.appendChild(breadcrumbSchema);
+            }
+        }
+    });
+</script>
 
 </body>
 </html>
