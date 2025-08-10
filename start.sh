@@ -6,6 +6,9 @@ echo "� Starting ECM Website..."
 # Run migrations quickly
 python manage.py migrate --noinput > /dev/null 2>&1 || echo "Migration warning (continuing...)"
 
+# Update site domain to match settings
+python manage.py update_site_domain
+
 # Start Gunicorn immediately
 echo "Starting server on port $PORT..."
 

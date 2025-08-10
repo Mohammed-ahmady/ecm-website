@@ -10,13 +10,41 @@ from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
 from .sitemaps import StaticViewSitemap, PartSitemap, CategorySitemap, TruckModelSitemap
 from django.http import HttpResponse
+from django.contrib.sites.models import Site
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Update the domain name in the Site framework
+def update_site_domain():
+    try:
+        site_domain = getattr(settings, 'SITE_DOMAIN', 'magiruscenter.me')
+        site = Site.objects.get(id=settings.SITE_ID)
+        if site.domain != site_domain:
+            logger.info(f"Updating site domain from {site.domain} to {site_domain}")
+            site.name = 'Magirus Center'
+            site.domain = site_domain
+            site.save()
+            logger.info("Site domain updated successfully")
+    except Exception as e:
+        logger.error(f"Error updating site domain: {e}")
+
+# Run the update function - this will execute when the app starts
+try:
+    update_site_domain()
+except Exception as e:
+    logger.error(f"Could not run site domain update: {e}")
 
 def robots_txt(request):
+    # Always use the correct domain for sitemap URL
+    site_domain = getattr(settings, 'SITE_DOMAIN', 'magiruscenter.me')
+    sitemap_url = f"https://{site_domain}/sitemap.xml"
+    
     lines = [
         "User-agent: *",
         "Disallow: /admin/",
         "Allow: /",
-        f"Sitemap: {request.build_absolute_uri('/sitemap.xml')}",
+        f"Sitemap: {sitemap_url}",
     ]
     return HttpResponse("\n".join(lines), content_type="text/plain")
 

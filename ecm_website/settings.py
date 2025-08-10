@@ -113,8 +113,9 @@ INSTALLED_APPS = [
     'parts',
 ]
 
-# Site ID for sitemap
+# Site framework settings
 SITE_ID = 1
+SITE_DOMAIN = 'magiruscenter.me'  # Used for consistent domain references
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -126,6 +127,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'ecm_website.middleware.SiteDomainMiddleware',  # Custom middleware to ensure correct site domain
 ]
 
 # CORS settings
