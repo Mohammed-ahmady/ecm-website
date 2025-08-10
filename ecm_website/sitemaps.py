@@ -45,7 +45,7 @@ class CategorySitemap(Sitemap):
         
     def lastmod(self, obj):
         # Get the last updated part in this category
-        parts = Part.objects.filter(categories=obj).order_by('-updated_at')
+        parts = Part.objects.filter(category=obj).order_by('-updated_at')
         if parts.exists():
             return parts.first().updated_at
         return datetime.now(timezone.utc)

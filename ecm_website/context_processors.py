@@ -35,9 +35,9 @@ def seo_context(request):
     # Company info for SEO
     company_info = {
         "name": company_name,
-        "address": "Egypt",
-        "phone": "+201XXXXXXXXX",
-        "email": "info@magiruscenter.me",
+        "address": "206 Shubra, Asaad, Al-Sahel, Cairo Governorate, Egypt",
+        "phone": "+20 10 07019879",
+        "email": "sallamsameh96@gmail.com",
         "founded": "2019",
     }
     
