@@ -16,6 +16,9 @@ import environ
 import logging.config
 import dj_database_url
 from pathlib import Path
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -89,6 +92,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'cloudinary_storage',
+    'cloudinary',
     'corsheaders',  # CORS headers support
     'parts',
 ]
@@ -148,6 +153,14 @@ DATABASES = {
     )
 }
 
+# Cloudinary configuration
+cloudinary.config(
+    cloud_name=os.getenv('CLOUDINARY_CLOUD_NAME', 'dr0r0hygs'),
+    api_key=os.getenv('CLOUDINARY_API_KEY', '738811418858869'),
+    api_secret=os.getenv('CLOUDINARY_API_SECRET', 'OViSfiTGDH8alwAG49i6lkzK-z8'),
+    secure=True
+)
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -183,9 +196,17 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # WhiteNoise configuration
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media files
+# Media files - using Cloudinary for cloud storage
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# Cloudinary storage settings
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME', 'dr0r0hygs'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY', '738811418858869'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET', 'OViSfiTGDH8alwAG49i6lkzK-z8'),
+}
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

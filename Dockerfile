@@ -30,9 +30,8 @@ COPY . .
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
-# Create and set proper permissions for media folder
-RUN mkdir -p /app/media && \
-    chmod -R 755 /app/media
+# Ensure media directory exists and set proper permissions
+RUN chmod -R 755 /app/media || mkdir -p /app/media && chmod -R 755 /app/media
 
 # Expose port
 EXPOSE 8000
