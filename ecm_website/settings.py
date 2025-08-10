@@ -110,6 +110,7 @@ INSTALLED_APPS = [
     'cloudinary_storage',
     'cloudinary',
     'corsheaders',  # CORS headers support
+    'ecm_website',  # Main app for site-wide functionality
     'parts',
 ]
 
@@ -121,6 +122,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise for static files
     'corsheaders.middleware.CorsMiddleware',  # CORS headers - must be near the top
+    'ecm_website.no_redirect_middleware.NoRedirectSlashMiddleware',  # Handle URL trailing slashes without redirects
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

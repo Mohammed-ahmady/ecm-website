@@ -33,7 +33,7 @@
     
     <!-- Search Engine Related -->
     <meta name="robots" content="{% block robots %}index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1{% endblock %}">
-    <link rel="canonical" href="{{ request.build_absolute_uri }}">
+    <link rel="canonical" href="{% if request.path|slice:'-1:' != '/' %}{{ request.build_absolute_uri }}{% if '?' not in request.build_absolute_uri %}/{% endif %}{% else %}{{ request.build_absolute_uri }}{% endif %}">
     
     <!-- Mobile App Tags -->
     <meta name="application-name" content="{{ company_name }}">

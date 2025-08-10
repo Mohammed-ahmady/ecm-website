@@ -61,10 +61,19 @@ urlpatterns = [
     path('up/', root_health_check, name='simple_up_check'),  # Even simpler endpoint
     path('admin/', admin.site.urls),
     path('', home_view, name='home'), # Use the function-based home_view from parts.views
+    
+    # Direct URL pattern matches for both with and without trailing slashes
     path('about/', TemplateView.as_view(template_name='about.html'), name='about'),
+    path('about', TemplateView.as_view(template_name='about.html')),  # No trailing slash version
+    
     path('contact/', TemplateView.as_view(template_name='contact.html'), name='contact'),
+    path('contact', TemplateView.as_view(template_name='contact.html')),  # No trailing slash version
+    
     path('inquiry/', InquiryCreateView.as_view(), name='inquiry'), # Use the InquiryCreateView
+    path('inquiry', InquiryCreateView.as_view()),  # No trailing slash version
+    
     path('parts/', include('parts.urls')), # Link to your parts app URLs
+    path('parts', include('parts.urls')),  # No trailing slash version
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     path('robots.txt', robots_txt, name='robots_txt'),
     path('googleffabe9f5a3599130.html', 
