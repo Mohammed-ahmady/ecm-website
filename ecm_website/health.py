@@ -1,28 +1,18 @@
-import logging
-from django.http import JsonResponse
+from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
+import logging
 
 logger = logging.getLogger(__name__)
 
 @csrf_exempt
 def health_check(request):
     """
-    Simple health check endpoint optimized for Railway
+    Ultra-simple health check for Railway
+    Returns plain text OK - no JSON parsing issues
     """
     try:
-        # Simple health status - no database check to avoid timeouts
-        health_status = {
-            'status': 'healthy',
-            'service': 'ecm-website',
-            'timestamp': '2025-08-10'
-        }
-        
-        logger.info("Health check passed - simple mode")
-        return JsonResponse(health_status)
-        
+        logger.info("Health check requested")
+        return HttpResponse("OK", status=200, content_type="text/plain")
     except Exception as e:
         logger.error(f"Health check failed: {str(e)}")
-        return JsonResponse({
-            'status': 'unhealthy',
-            'error': str(e)
-        }, status=500)
+        return HttpResponse("ERROR", status=500, content_type="text/plain")

@@ -11,6 +11,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('health/', health_check, name='health_check'),
     path('healthz/', root_health_check, name='root_health_check'),  # Alternative health endpoint
+    path('up/', root_health_check, name='simple_up_check'),  # Even simpler endpoint
     path('admin/', admin.site.urls),
     path('', home_view, name='home'), # Use the function-based home_view from parts.views
     path('about/', TemplateView.as_view(template_name='about.html'), name='about'),

@@ -1,9 +1,5 @@
 [deploy]
-healthcheckPath = "/health/"
-healthcheckTimeout = 600
-healthcheckInterval = 60
 restartPolicy = "always"
-healthcheckProtocol = "http"
 
 [build]
 builder = "DOCKERFILE"
