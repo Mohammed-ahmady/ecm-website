@@ -73,20 +73,26 @@ LOGGING = {
 }
 
 # Allowed hosts
-ALLOWED_HOSTS = ['magiruscenter.me', 'www.magiruscenter.me', 'ecm-website-production-638d.up.railway.app', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*'] if DEBUG else ['magiruscenter.me', 'www.magiruscenter.me', 'ecm-website-production-638d.up.railway.app', 'localhost', '127.0.0.1']
 
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
     "https://magiruscenter.me",
-    "https://www.magiruscenter.me",
+    "https://www.magiruscenter.me", 
     "https://ecm-website-production-638d.up.railway.app",
     "http://127.0.0.1:8000",
     "http://localhost:8000",
 ]
 
+# Additional CSRF settings for production
+CSRF_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_USE_SESSIONS = False
+
 # Security headers for production
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = not DEBUG
+SECURE_SSL_REDIRECT = not DEBUG  
 USE_TZ = True
 
 
