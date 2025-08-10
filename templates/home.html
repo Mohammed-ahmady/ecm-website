@@ -87,8 +87,8 @@
             {% for model in truck_models %}
             <a href="{% url 'parts:part_list' %}?truck_model={{ model.slug }}" class="block bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
                 <div class="relative overflow-hidden">
-                    {% if model.image %}
-                    <img src="{{ model.image.url }}" alt="{{ model.name }}" class="w-full h-64 object-cover object-center transition-transform duration-300 hover:scale-110">
+                    {% if model.get_image_url %}
+                    <img src="{{ model.get_image_url }}" alt="{{ model.name }}" class="w-full h-64 object-cover object-center transition-transform duration-300 hover:scale-110">
                     {% else %}
                     <div class="w-full h-64 flex items-center justify-center bg-gray-200 text-gray-500 text-sm font-medium text-center p-4">
                         No Image Available

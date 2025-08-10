@@ -28,6 +28,7 @@ class TruckModel(models.Model):
     manufacturer = models.CharField(max_length=100, default='Magirus') # Assuming Magirus for now
     year_range = models.CharField(max_length=50, blank=True, null=True, help_text="e.g., 1980s, 2000-2010")
     image = CloudinaryField('image', folder='ecm_website_media/truck_models', blank=True, null=True, help_text="Image of the truck model")
+    image_url = models.URLField(max_length=1000, blank=True, null=True, help_text="Alternative external image URL if you don't want to upload an image directly")
     description = models.TextField(blank=True, null=True, help_text="Brief description of the truck model")
 
     class Meta:
@@ -41,6 +42,14 @@ class TruckModel(models.Model):
 
     def __str__(self):
         return f"{self.manufacturer} {self.name}"
+        
+    def get_image_url(self):
+        """Return the image URL, preferring image_url if provided, otherwise using the Cloudinary image"""
+        if self.image_url:
+            return self.image_url
+        elif self.image:
+            return self.image.url
+        return None
 
 class Engine(models.Model):
     name = models.CharField(max_length=100)
@@ -63,6 +72,7 @@ class Part(models.Model):
     truck_models = models.ManyToManyField(TruckModel, blank=True, related_name='parts')
     price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Price in EGP")
     image = CloudinaryField('image', folder='ecm_website_media/parts_images', blank=True, null=True)
+    image_url = models.URLField(max_length=1000, blank=True, null=True, help_text="Alternative external image URL if you don't want to upload an image directly")
     is_active = models.BooleanField(default=True, db_index=True, help_text="Designates whether this part should be available on the website.")
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -84,6 +94,17 @@ class Part(models.Model):
     def __str__(self):
         return f"{self.name} ({self.part_number})"
     
+    def get_image_url(self):
+        """
+        Returns the best available image URL for this part.
+        First checks for an external URL, then falls back to the uploaded image.
+        """
+        if self.image_url:
+            return self.image_url
+        elif self.image:
+            return self.image.url
+        return None
+
 
 def part_image_upload_to(instance, filename):
     # Get the part name or slug
