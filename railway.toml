@@ -1,7 +1,7 @@
 [deploy]
 healthcheckPath = "/health/"
-healthcheckTimeout = 300
-healthcheckInterval = 45
+healthcheckTimeout = 600
+healthcheckInterval = 60
 restartPolicy = "always"
 healthcheckProtocol = "http"
 
