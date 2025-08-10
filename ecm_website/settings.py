@@ -73,14 +73,21 @@ LOGGING = {
 }
 
 # Allowed hosts
-ALLOWED_HOSTS = ['*']  # We'll restrict this in production later
+ALLOWED_HOSTS = ['magiruscenter.me', 'www.magiruscenter.me', 'ecm-website-production-638d.up.railway.app', 'localhost', '127.0.0.1']
 
 # CSRF trusted origins
 CSRF_TRUSTED_ORIGINS = [
-    'https://cowbird-advanced-infinitely.ngrok-free.app',
-    'http://127.0.0.1:8000',
-    'http://localhost:8000',
+    "https://magiruscenter.me",
+    "https://www.magiruscenter.me",
+    "https://ecm-website-production-638d.up.railway.app",
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
 ]
+
+# Security headers for production
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = not DEBUG
+USE_TZ = True
 
 
 # Application definition
