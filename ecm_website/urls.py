@@ -39,6 +39,12 @@ urlpatterns = [
     path('parts/', include('parts.urls')), # Link to your parts app URLs
     path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
     path('robots.txt', robots_txt, name='robots_txt'),
+    path('googleffabe9f5a3599130.html', 
+         TemplateView.as_view(
+             template_name='googleffabe9f5a3599130.html', 
+             content_type='text/html'
+         ), 
+         name='google_verification'),
 ]
 
 
