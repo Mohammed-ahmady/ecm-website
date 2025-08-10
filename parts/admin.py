@@ -11,6 +11,8 @@ class CategoryAdmin(admin.ModelAdmin):
 class PartImageInline(admin.TabularInline):  # or admin.StackedInline
     model = PartImage
     extra = 1
+    fields = ('image', 'image_url')
+    readonly_fields = ()  # No readonly fields
 
 
 @admin.register(TruckModel)

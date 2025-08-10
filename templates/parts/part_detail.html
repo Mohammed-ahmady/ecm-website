@@ -37,10 +37,17 @@ input[type=number] {
                 {% if part.images.count > 1 %}
                     <div class="flex flex-col gap-2 flex-shrink-0">
                         {% for image in part.images.all %}
+                            {% if image.get_image_url %}
+                            <img loading="lazy" src="{{ image.get_image_url }}"
+                                alt="Thumbnail {{ forloop.counter }}"
+                                onclick="updateMainImage('{{ image.get_image_url }}', this)"
+                                class="thumbnail w-16 h-16 md:w-20 md:h-20 rounded-lg object-cover border-2 border-gray-200 hover:border-orange-600 cursor-pointer transition-all duration-200 {% if forloop.first %}border-orange-600{% endif %}"
+                            {% else %}
                             <img loading="lazy" src="{{ image.image.url }}"
                                 alt="Thumbnail {{ forloop.counter }}"
                                 onclick="updateMainImage('{{ image.image.url }}', this)"
-                                class="thumbnail w-16 h-16 md:w-20 md:h-20 rounded-lg object-cover border-2 border-gray-200 hover:border-orange-600 cursor-pointer transition-all duration-200 {% if forloop.first %}border-orange-600{% endif %}">
+                                class="thumbnail w-16 h-16 md:w-20 md:h-20 rounded-lg object-cover border-2 border-gray-200 hover:border-orange-600 cursor-pointer transition-all duration-200 {% if forloop.first %}border-orange-600{% endif %}"
+                            {% endif %}>
                         {% endfor %}
                     </div>
                 {% endif %}
@@ -55,7 +62,7 @@ input[type=number] {
                     {% elif part.images.exists %}
                         {% with part.images.all.0 as first_image %}
                             <img id="mainImage" loading="lazy"
-                                 src="{{ first_image.image.url }}"
+                                 src="{% if first_image.get_image_url %}{{ first_image.get_image_url }}{% else %}{{ first_image.image.url }}{% endif %}"
                                  alt="{{ part.name }}"
                                  class="w-full h-64 md:h-80 lg:h-96 object-contain transition-all duration-300 ease-in-out hover:scale-105 cursor-zoom-in">
                         {% endwith %}
