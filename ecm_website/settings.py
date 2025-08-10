@@ -105,11 +105,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sitemaps',  # Sitemap framework
+    'django.contrib.sites',     # Site framework for sitemaps
     'cloudinary_storage',
     'cloudinary',
     'corsheaders',  # CORS headers support
     'parts',
 ]
+
+# Site ID for sitemap
+SITE_ID = 1
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -147,6 +152,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'ecm_website.context_processors.cart_context',
+                'ecm_website.context_processors.seo_context',
             ],
         },
     },

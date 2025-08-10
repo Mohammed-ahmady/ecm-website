@@ -7,6 +7,25 @@ from .health import health_check
 from .simple_health import root_health_check
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib.sitemaps.views import sitemap
+from .sitemaps import StaticViewSitemap, PartSitemap, CategorySitemap, TruckModelSitemap
+from django.http import HttpResponse
+
+def robots_txt(request):
+    lines = [
+        "User-agent: *",
+        "Disallow: /admin/",
+        "Allow: /",
+        f"Sitemap: {request.build_absolute_uri('/sitemap.xml')}",
+    ]
+    return HttpResponse("\n".join(lines), content_type="text/plain")
+
+sitemaps = {
+    'static': StaticViewSitemap,
+    'parts': PartSitemap,
+    'categories': CategorySitemap,
+    'truck_models': TruckModelSitemap,
+}
 
 urlpatterns = [
     path('health/', health_check, name='health_check'),
@@ -18,6 +37,8 @@ urlpatterns = [
     path('contact/', TemplateView.as_view(template_name='contact.html'), name='contact'),
     path('inquiry/', InquiryCreateView.as_view(), name='inquiry'), # Use the InquiryCreateView
     path('parts/', include('parts.urls')), # Link to your parts app URLs
+    path('sitemap.xml', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
+    path('robots.txt', robots_txt, name='robots_txt'),
 ]
 
 
