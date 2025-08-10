@@ -30,6 +30,10 @@ COPY . .
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
+# Copy and set permissions for setup script
+COPY railway_setup.sh /app/
+RUN chmod +x /app/railway_setup.sh
+
 # Ensure media directory exists and set proper permissions
 RUN chmod -R 755 /app/media || mkdir -p /app/media && chmod -R 755 /app/media
 
