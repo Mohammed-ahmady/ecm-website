@@ -9,14 +9,13 @@
     <meta name="description" content="{% block meta_description %}European Center for Magirus - Authentic truck spare parts for Magirus, Deutz, and Volvo trucks. Find high-quality parts at competitive prices.{% endblock %}">
     
     <!-- Canonical URL -->
-    {% load canonical_tags %}
-    <link rel="canonical" href="{% canonical_url request %}" />
+    <link rel="canonical" href="{{ request.build_absolute_uri }}" />
     
     <!-- Open Graph Tags -->
     <meta property="og:title" content="{% block og_title %}European Center for Magirus - Authentic Truck Parts{% endblock %}">
     <meta property="og:description" content="{% block og_description %}Find genuine truck spare parts for Magirus, Deutz, and Volvo trucks at competitive prices.{% endblock %}">
     <meta property="og:type" content="{% block og_type %}website{% endblock %}">
-    <meta property="og:url" content="{% canonical_url request %}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}"
     <meta property="og:image" content="{% block og_image %}{{ request.scheme }}://{{ request.get_host }}{% static 'images/delivery-truck.png' %}{% endblock %}">
     <meta property="og:site_name" content="European Center for Magirus">
     
