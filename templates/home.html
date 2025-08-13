@@ -113,27 +113,21 @@
 <section class="py-16 bg-gray-100">
     <div class="container mx-auto px-4">
         <h2 class="text-4xl font-bold text-gray-900 text-center mb-10">Our Truck Models</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {% for model in truck_models %}
-            <a href="{% url 'parts:part_list' %}?truck_model={{ model.slug }}" class="truck-model-card block">
-                <div class="truck-model-image-container">
-                    <img
-                        src="{% if model.get_image_url %}{{ model.get_image_url }}{% else %}{% static 'images/delivery-truck.png' %}{% endif %}"
-                        alt="{{ model.manufacturer }} {{ model.name }}"
-                        class="w-full h-full object-cover object-center"
-                        loading="lazy" decoding="async"
-                    >
-
-                    <div class="truck-model-overlay">
-                        <div class="truck-model-content">
-                            <div class="truck-model-icon"><i class="fas fa-truck"></i></div>
-                            <p>Explore parts</p>
-                        </div>
+            <a href="{% url 'parts:part_list' %}?truck_model={{ model.slug }}" class="truck-model-card group">
+                <div class="truck-model-image">
+                    {% if model.image %}
+                    <img src="{{ model.image.url }}" alt="{{ model.name }}" class="truck-model-img">
+                    {% else %}
+                    <div class="truck-model-placeholder">
+                        <i class="fas fa-truck text-4xl text-gray-400 mb-2"></i>
+                        <span class="text-gray-500 text-sm font-medium">No Image Available</span>
                     </div>
-
-                    <div class="absolute bottom-0 left-0 right-0">
-                        <h3>{{ model.name }}</h3>
-                    </div>
+                    {% endif %}
+                </div>
+                <div class="truck-model-content">
+                    <h3 class="truck-model-title">{{ model.name }}</h3>
                 </div>
             </a>
             {% endfor %}
