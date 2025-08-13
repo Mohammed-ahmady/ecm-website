@@ -77,6 +77,7 @@ header .text-orange {
     overflow: hidden;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    display: block;
 }
 
 .truck-model-card:hover {
@@ -88,6 +89,7 @@ header .text-orange {
     position: relative;
     overflow: hidden;
     height: 16rem; /* 256px */
+    min-height: 16rem;
 }
 
 .truck-model-image-container img {

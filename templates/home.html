@@ -115,18 +115,25 @@
         <h2 class="text-4xl font-bold text-gray-900 text-center mb-10">Our Truck Models</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {% for model in truck_models %}
-            <a href="{% url 'parts:part_list' %}?truck_model={{ model.slug }}" class="block bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                <div class="relative overflow-hidden">
-                    {% if model.image %}
-                    <img src="{{ model.image.url }}" alt="{{ model.name }}" class="w-full h-64 object-cover object-center transition-transform duration-300 hover:scale-110">
-                    {% else %}
-                    <div class="w-full h-64 flex items-center justify-center bg-gray-200 text-gray-500 text-sm font-medium text-center p-4">
-                        No Image Available
+            <a href="{% url 'parts:part_list' %}?truck_model={{ model.slug }}" class="truck-model-card block">
+                <div class="truck-model-image-container">
+                    <img
+                        src="{% if model.get_image_url %}{{ model.get_image_url }}{% else %}{% static 'images/delivery-truck.png' %}{% endif %}"
+                        alt="{{ model.manufacturer }} {{ model.name }}"
+                        class="w-full h-full object-cover object-center"
+                        loading="lazy" decoding="async"
+                    >
+
+                    <div class="truck-model-overlay">
+                        <div class="truck-model-content">
+                            <div class="truck-model-icon"><i class="fas fa-truck"></i></div>
+                            <p>Explore parts</p>
+                        </div>
                     </div>
-                    {% endif %}
-                </div>
-                <div class="p-4 flex items-center justify-center h-16">
-                    <h3 class="text-xl font-semibold text-gray-900 text-center leading-tight">{{ model.name }}</h3>
+
+                    <div class="absolute bottom-0 left-0 right-0">
+                        <h3>{{ model.name }}</h3>
+                    </div>
                 </div>
             </a>
             {% endfor %}
