@@ -35,8 +35,9 @@ COPY railway_setup.sh /app/
 COPY start.sh /app/
 RUN chmod +x /app/railway_setup.sh /app/start.sh
 
-# Ensure media directory exists and set proper permissions
-RUN chmod -R 755 /app/media || mkdir -p /app/media && chmod -R 755 /app/media
+# Ensure media and staticfiles directories exist with proper permissions
+RUN mkdir -p /app/media /app/staticfiles && \
+    chmod -R 755 /app/media /app/staticfiles
 
 # Expose port
 EXPOSE 8000

@@ -6,6 +6,10 @@ echo "� Starting ECM Website..."
 # Run migrations quickly
 python manage.py migrate --noinput > /dev/null 2>&1 || echo "Migration warning (continuing...)"
 
+# Collect static files
+echo "Collecting static files..."
+python manage.py collectstatic --noinput
+
 # Update site domain to match settings
 python manage.py update_site_domain
 
