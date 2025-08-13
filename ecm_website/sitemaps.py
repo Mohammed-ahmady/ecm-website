@@ -1,74 +1,54 @@
 from django.contrib.sitemaps import Sitemap
 from django.urls import reverse
 from parts.models import Part, Category, TruckModel
-from datetime import datetime, timezone
 
-class BaseSitemap(Sitemap):
-    """Base sitemap class with common settings for all sitemaps"""
-    protocol = 'https'
-    
-    def get_site_domain(self):
-        """Get the correct site domain"""
-        from django.conf import settings
-        return getattr(settings, 'SITE_DOMAIN', 'magiruscenter.me')
-
-class StaticViewSitemap(BaseSitemap):
+class StaticSitemap(Sitemap):
+    changefreq = "weekly"
     priority = 0.8
-    changefreq = 'weekly'
 
     def items(self):
         return ['home', 'about', 'contact', 'inquiry', 'parts:part_list']
-
+    
     def location(self, item):
         return reverse(item)
-        
-    def lastmod(self, obj):
-        # Return the current date for static pages
-        return datetime.now(timezone.utc)
 
-class PartSitemap(BaseSitemap):
-    changefreq = 'daily'
+class PartSitemap(Sitemap):
+    changefreq = "daily"
     priority = 1.0
 
     def items(self):
-        return Part.objects.filter(is_active=True)
+        return Part.objects.filter(is_active=True).order_by('-updated_at')
 
     def lastmod(self, obj):
         return obj.updated_at
-
+    
     def location(self, obj):
         return reverse('parts:part_detail', args=[obj.slug])
 
-class CategorySitemap(BaseSitemap):
-    changefreq = 'weekly'
+class CategorySitemap(Sitemap):
+    changefreq = "weekly"
     priority = 0.7
 
     def items(self):
         return Category.objects.all()
-
+    
     def location(self, obj):
-        return reverse('parts:part_list') + f'?category={obj.slug}'
-        
-    def lastmod(self, obj):
-        # Get the last updated part in this category
-        parts = Part.objects.filter(category=obj).order_by('-updated_at')
-        if parts.exists():
-            return parts.first().updated_at
-        return datetime.now(timezone.utc)
+        return f"{reverse('parts:part_list')}?category={obj.slug}"
 
-class TruckModelSitemap(BaseSitemap):
-    changefreq = 'weekly'
+class TruckModelSitemap(Sitemap):
+    changefreq = "weekly"
     priority = 0.7
 
     def items(self):
         return TruckModel.objects.all()
-
+    
     def location(self, obj):
-        return reverse('parts:part_list') + f'?truck_model={obj.slug}'
-        
-    def lastmod(self, obj):
-        # Get the last updated part for this truck model
-        parts = Part.objects.filter(truck_models=obj).order_by('-updated_at')
-        if parts.exists():
-            return parts.first().updated_at
-        return datetime.now(timezone.utc)
+        return f"{reverse('parts:part_list')}?truck_model={obj.slug}"
+
+# Combine all sitemaps
+sitemaps = {
+    'static': StaticSitemap,
+    'parts': PartSitemap,
+    'categories': CategorySitemap, 
+    'truck_models': TruckModelSitemap
+}

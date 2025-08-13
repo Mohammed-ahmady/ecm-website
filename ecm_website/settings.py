@@ -105,31 +105,23 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sitemaps',  # Sitemap framework
-    'django.contrib.sites',     # Site framework for sitemaps
+    'django.contrib.sitemaps',  # Add sitemap support
     'cloudinary_storage',
     'cloudinary',
     'corsheaders',  # CORS headers support
-    'ecm_website',  # Main app for site-wide functionality
     'parts',
 ]
-
-# Site framework settings
-SITE_ID = 1
-SITE_DOMAIN = 'magiruscenter.me'  # Used for consistent domain references
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',  # WhiteNoise for static files
     'corsheaders.middleware.CorsMiddleware',  # CORS headers - must be near the top
-    'ecm_website.no_redirect_middleware.NoRedirectSlashMiddleware',  # Handle URL trailing slashes without redirects
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'ecm_website.middleware.SiteDomainMiddleware',  # Custom middleware to ensure correct site domain
 ]
 
 # CORS settings
@@ -156,7 +148,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'ecm_website.context_processors.cart_context',
-                'ecm_website.context_processors.seo_context',
             ],
         },
     },

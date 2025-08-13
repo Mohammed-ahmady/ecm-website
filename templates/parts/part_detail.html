@@ -2,40 +2,18 @@
 {% load static %}
 
 {% block title %}{{ part.name }} - European Center for Magirus{% endblock %}
-
-{% block meta_description %}{{ part.name }} - {{ part.part_number }} - {{ part.description|truncatewords:25 }} - European Center for Magirus provides genuine parts with fast shipping.{% endblock %}
-
-{% block meta_keywords %}{{ part.name }}, {{ part.part_number }}, magirus parts, truck parts, spare parts{% endblock %}
+{% block meta_description %}{{ part.description|default:part.name|truncatechars:160 }} - Part Number: {{ part.part_number }}. Find genuine Magirus truck parts at the European Center for Magirus.{% endblock %}
 
 {% block og_title %}{{ part.name }} | European Center for Magirus{% endblock %}
-{% block og_description %}{{ part.description|truncatewords:25 }}{% endblock %}
-{% block og_image %}{% if part.get_image_url %}{{ part.get_image_url }}{% else %}{% static 'images/magirus.jpeg' %}{% endif %}{% endblock %}
+{% block og_description %}{{ part.description|default:part.name|truncatechars:200 }} - Part Number: {{ part.part_number }}{% endblock %}
+{% block og_type %}product{% endblock %}
+{% block og_image %}{% if part.images.exists %}{{ request.scheme }}://{{ request.get_host }}{{ part.images.first.image.url }}{% endif %}{% endblock %}
+
+{% block twitter_title %}{{ part.name }} | European Center for Magirus{% endblock %}
+{% block twitter_description %}{{ part.description|default:part.name|truncatechars:200 }} - Part Number: {{ part.part_number }}{% endblock %}
+{% block twitter_image %}{% if part.images.exists %}{{ request.scheme }}://{{ request.get_host }}{{ part.images.first.image.url }}{% endif %}{% endblock %}
 
 {% block head_extra %}
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org/",
-  "@type": "Product",
-  "name": "{{ part.name }}",
-  "image": "{% if part.get_image_url %}{{ part.get_image_url }}{% elif part.images.exists %}{{ part.images.all.0.image.url }}{% elif part.image %}{{ part.image.url }}{% else %}{% static 'images/magirus.jpeg' %}{% endif %}",
-  "description": "{{ part.description|default:part.name }}",
-  "mpn": "{{ part.part_number }}",
-  "brand": {
-    "@type": "Brand",
-    "name": "Magirus"
-  },
-  {% if part.price %}
-  "offers": {
-    "@type": "Offer",
-    "url": "{{ request.build_absolute_uri }}",
-    "priceCurrency": "EGP",
-    "price": "{{ part.price|floatformat:2 }}",
-    "availability": "{% if part.stock > 0 %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
-    "itemCondition": "https://schema.org/NewCondition"
-  }
-  {% endif %}
-}
-</script>
 <style>
 /* Hide number input spin buttons */
 input[type=number]::-webkit-outer-spin-button,
@@ -48,6 +26,7 @@ input[type=number] {
     -moz-appearance: textfield;
 }
 </style>
+{% include 'parts/structured_data.html' %}
 {% endblock %}
 
 {% block content %}
@@ -69,46 +48,22 @@ input[type=number] {
                 {% if part.images.count > 1 %}
                     <div class="flex flex-col gap-2 flex-shrink-0">
                         {% for image in part.images.all %}
-                            {% if image.get_image_url %}
-                            <img loading="lazy" src="{{ image.get_image_url }}"
-                                alt="Thumbnail {{ forloop.counter }}"
-                                onclick="updateMainImage('{{ image.get_image_url }}', this)"
-                                class="thumbnail w-16 h-16 md:w-20 md:h-20 rounded-lg object-cover border-2 border-gray-200 hover:border-orange-600 cursor-pointer transition-all duration-200 {% if forloop.first %}border-orange-600{% endif %}"
-                            {% else %}
                             <img loading="lazy" src="{{ image.image.url }}"
                                 alt="Thumbnail {{ forloop.counter }}"
                                 onclick="updateMainImage('{{ image.image.url }}', this)"
-                                class="thumbnail w-16 h-16 md:w-20 md:h-20 rounded-lg object-cover border-2 border-gray-200 hover:border-orange-600 cursor-pointer transition-all duration-200 {% if forloop.first %}border-orange-600{% endif %}"
-                            {% endif %}>
+                                class="thumbnail w-16 h-16 md:w-20 md:h-20 rounded-lg object-cover border-2 border-gray-200 hover:border-orange-600 cursor-pointer transition-all duration-200 {% if forloop.first %}border-orange-600{% endif %}">
                         {% endfor %}
                     </div>
                 {% endif %}
 
                 <!-- Main Image -->
                 <div class="relative bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm flex-1">
-                    {% if part.image_url %}
+                    {% with part.images.all.0 as first_image %}
                         <img id="mainImage" loading="lazy"
-                             src="{{ part.image_url }}"
+                             src="{{ first_image.image.url }}"
                              alt="{{ part.name }}"
                              class="w-full h-64 md:h-80 lg:h-96 object-contain transition-all duration-300 ease-in-out hover:scale-105 cursor-zoom-in">
-                    {% elif part.images.exists %}
-                        {% with part.images.all.0 as first_image %}
-                            <img id="mainImage" loading="lazy"
-                                 src="{% if first_image.get_image_url %}{{ first_image.get_image_url }}{% else %}{{ first_image.image.url }}{% endif %}"
-                                 alt="{{ part.name }}"
-                                 class="w-full h-64 md:h-80 lg:h-96 object-contain transition-all duration-300 ease-in-out hover:scale-105 cursor-zoom-in">
-                        {% endwith %}
-                    {% elif part.image %}
-                        <img id="mainImage" loading="lazy"
-                             src="{{ part.image.url }}"
-                             alt="{{ part.name }}"
-                             class="w-full h-64 md:h-80 lg:h-96 object-contain transition-all duration-300 ease-in-out hover:scale-105 cursor-zoom-in">
-                    {% else %}
-                        <img id="mainImage" loading="lazy"
-                             src="{% static 'images/magirus.jpeg' %}"
-                             alt="{{ part.name }} (No Image Available)"
-                             class="w-full h-64 md:h-80 lg:h-96 object-contain transition-all duration-300 ease-in-out hover:scale-105 cursor-zoom-in">
-                    {% endif %}
+                    {% endwith %}
                 </div>
             </div>
 
@@ -238,7 +193,7 @@ input[type=number] {
                 <div class="flex flex-wrap gap-6 text-sm text-gray-600">
                     <div class="flex items-center"><i class="fas fa-shield-alt mr-3" style="color: #16a34a !important;"></i>&nbsp; Genuine Parts</div>
                     <div class="flex items-center"><i class="fas fa-truck mr-3" style="color: #3b82f6 !important;"></i>&nbsp; Fast Delivery</div>
-                    <div class="flex items-center"><i class="fas fa-tools mr-3 text-orange-500"></i>&nbsp; Expert Support</div>
+                    <div class="flex items-center"><i class="fas fa-tools mr-3" style="color: #FFA500 !important;"></i>&nbsp; Expert Support</div>
                 </div>
             </div>
         </div>
