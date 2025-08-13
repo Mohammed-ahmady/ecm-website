@@ -18,11 +18,15 @@
   "description": "The European Center for Magirus offers genuine truck parts with fast worldwide shipping.",
   "address": {
     "@type": "PostalAddress",
+    "streetAddress": "206 Shubra, Asaad, Al-Sahel",
+    "addressLocality": "Cairo",
+    "addressRegion": "Cairo Governorate",
     "addressCountry": "Egypt"
   },
   "contactPoint": {
     "@type": "ContactPoint",
-    "telephone": "+201XXXXXXXXX",
+    "telephone": "+201007019879",
+    "email": "sallamsameh96@gmail.com",
     "contactType": "customer service"
   }
 }
@@ -59,16 +63,16 @@
     <section class="bg-white py-16">
         <div class="container mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div>
-                <h2 class="text-4xl font-bold text-orange-500 counter" data-target="1500">0</h2>
-                <p class="mt-2 text-sm text-gray-600">Parts Delivered</p>
+                <h2 class="counter" data-target="1500" style="font-size: 2rem; font-weight: bold; color: #f97316; line-height: 1;">0</h2>
+                <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #4b5563;">Parts Delivered</p>
             </div>
             <div>
-                <h2 class="text-4xl font-bold text-orange-500 counter" data-target="120">0</h2>
-                <p class="mt-2 text-sm text-gray-600">Happy Clients</p>
+                <h2 class="counter" data-target="120" style="font-size: 2rem; font-weight: bold; color: #f97316; line-height: 1;">0</h2>
+                <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #4b5563;">Happy Clients</p>
             </div>
             <div>
-                <h2 class="text-4xl font-bold text-orange-500 counter" data-target="35">0</h2>
-                <p class="mt-2 text-sm text-gray-600">Countries Reached</p>
+                <h2 class="counter" data-target="35" style="font-size: 2rem; font-weight: bold; color: #f97316; line-height: 1;">0</h2>
+                <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #4b5563;">Countries Reached</p>
             </div>
         </div>
     </section>
@@ -111,17 +115,17 @@
         <h2 class="text-4xl font-bold text-gray-900 text-center mb-10">Our Truck Models</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
             {% for model in truck_models %}
-            <a href="{% url 'parts:part_list' %}?truck_model={{ model.slug }}" class="flex flex-col h-full bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
-                <div class="relative overflow-hidden" style="height: 200px;">
-                    {% if model.get_image_url %}
-                    <img loading="lazy" src="{{ model.get_image_url }}" alt="{{ model.name }} - Magirus Truck Model" class="w-full h-full object-cover object-center transition-transform duration-300 hover:scale-110" width="400" height="200">
+            <a href="{% url 'parts:part_list' %}?truck_model={{ model.slug }}" class="block bg-white rounded-lg shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
+                <div class="relative overflow-hidden">
+                    {% if model.image %}
+                    <img src="{{ model.image.url }}" alt="{{ model.name }}" class="w-full h-64 object-cover object-center transition-transform duration-300 hover:scale-110">
                     {% else %}
-                    <div class="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500 text-sm font-medium text-center p-4">
+                    <div class="w-full h-64 flex items-center justify-center bg-gray-200 text-gray-500 text-sm font-medium text-center p-4">
                         No Image Available
                     </div>
                     {% endif %}
                 </div>
-                <div class="p-4 flex-grow flex items-center justify-center">
+                <div class="p-4 flex items-center justify-center h-16">
                     <h3 class="text-xl font-semibold text-gray-900 text-center leading-tight">{{ model.name }}</h3>
                 </div>
             </a>
