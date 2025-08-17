@@ -1,0 +1,91 @@
+{% comment %}
+This is a custom widget template that integrates the Cloudinary Media Library widget
+into Django admin forms.
+{% endcomment %}
+<div class="cloudinary-widget-container">
+    <input type="{{ widget.type }}" name="{{ widget.name }}" {% if widget.value != None %}value="{{ widget.value|stringformat:'s' }}"{% endif %}
+        {% include "django/forms/widgets/attrs.html" %} />
+    
+    <button type="button" class="button cloudinary-media-library-btn" 
+        data-cloud-name="{{ widget.cloud_name }}" 
+        data-api-key="{{ widget.api_key }}">
+        Choose from Cloudinary Library
+    </button>
+    
+    <div class="image-preview-container" style="margin-top: 10px; max-width: 300px;">
+        {% if widget.value %}
+        <img src="{{ widget.value.url }}" alt="Preview" style="max-width: 100%; max-height: 150px;" class="image-preview" />
+        {% else %}
+        <img src="" alt="Preview" style="max-width: 100%; max-height: 150px; display: none;" class="image-preview" />
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Load the Cloudinary Media Library JavaScript only once
+    if (!window.cloudinaryMediaLibraryLoaded) {
+        var script = document.createElement('script');
+        script.src = 'https://media-library.cloudinary.com/global/all.js';
+        document.head.appendChild(script);
+        window.cloudinaryMediaLibraryLoaded = true;
+    }
+
+    const buttons = document.querySelectorAll('.cloudinary-media-library-btn');
+    buttons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            // Get the associated input and image preview
+            const inputField = button.previousElementSibling;
+            const previewContainer = button.nextElementSibling;
+            const previewImage = previewContainer.querySelector('img');
+            
+            // Initialize Media Library
+            const mediaLibrary = window.cloudinary.createMediaLibrary({
+                cloud_name: button.dataset.cloudName,
+                api_key: button.dataset.apiKey,
+                multiple: false,
+                max_files: 1,
+                transformation: { quality: 'auto:best', fetch_format: 'auto' }
+            }, {
+                insertHandler: function(data) {
+                    // Set the input value to the public_id
+                    const selectedAsset = data.assets[0];
+                    const publicId = selectedAsset.public_id;
+                    
+                    // Set the value to the public_id (what Cloudinary Field expects)
+                    inputField.value = publicId;
+                    
+                    // Update preview image
+                    const imageUrl = `https://res.cloudinary.com/${button.dataset.cloudName}/image/upload/q_auto:best/${publicId}`;
+                    previewImage.src = imageUrl;
+                    previewImage.style.display = 'block';
+                    
+                    // Trigger change event to ensure form validation works
+                    const changeEvent = new Event('change', { bubbles: true });
+                    inputField.dispatchEvent(changeEvent);
+                }
+            });
+            
+            mediaLibrary.show();
+        });
+    });
+});
+</script>
+
+<style>
+    .cloudinary-widget-container {
+        margin-bottom: 15px;
+    }
+    .cloudinary-media-library-btn {
+        margin-top: 5px;
+        background: #447e9b;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .cloudinary-media-library-btn:hover {
+        background: #366b7c;
+    }
+</style>

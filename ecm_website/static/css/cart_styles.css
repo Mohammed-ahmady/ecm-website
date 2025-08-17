@@ -41,12 +41,16 @@
 
 /* Orange Text Styling - ONLY within cart page */
 .cart-detail-page [class*="text-orange"],
-.cart-detail-page .edit-btn,
-.cart-detail-page a:hover {
+.cart-detail-page .edit-btn {
     color: var(--primary-color);
     font-size: var(--text-sm);
     font-family: 'Poppins', sans-serif;
     font-weight: 500;
+}
+
+/* Prevent product name link from turning orange on hover */
+.cart-detail-page .product-name a:hover {
+    color: #1e3d59 !important;
 }
 
 /* Reset and base styles with higher specificity */
@@ -166,8 +170,13 @@
     border-radius: 8px;
 }
 
+
 .product-details {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
 }
 
 .product-name {

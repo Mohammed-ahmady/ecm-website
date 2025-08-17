@@ -1,0 +1,12 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="https://media-library.cloudinary.com/global/all.js"></script>
+<script>
+    // Initialize cloudinary globally once for all widgets to use
+    if (typeof cloudinary === 'undefined') {
+        console.warn('Cloudinary script not loaded correctly, will retry.');
+    }
+</script>
+{% endblock %}

@@ -49,4 +49,6 @@ def seo_context(request):
         'social_links': social_links,
         'company_info': company_info,
         'is_production': not settings.DEBUG,
+        'GOOGLE_SITE_VERIFICATION': getattr(settings, 'GOOGLE_SITE_VERIFICATION', ''),
+        'breadcrumb_jsonld': getattr(request, 'breadcrumb_jsonld', ''),
     }

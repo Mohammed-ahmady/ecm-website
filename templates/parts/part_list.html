@@ -206,55 +206,59 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    function showNotification(message, buttonElement, type = 'success') {
-        if (!buttonElement) return;
-        
-        // Get button position
-        const btnRect = buttonElement.getBoundingClientRect();
-        
-        const notification = document.createElement('div');
-        notification.className = `fixed z-50 px-4 py-3 rounded-lg shadow-xl transform transition-all duration-500 scale-0 ${
-            type === 'success' ? 'bg-green-600 text-white border-2 border-green-500' : 'bg-red-600 text-white border-2 border-red-500'
-        }`;
-        
-        // Position it over the button with better centering
-        notification.style.left = `${btnRect.left + (btnRect.width / 2) - 100}px`;
-        notification.style.top = `${btnRect.top + btnRect.height + 15}px`;
-        notification.style.minWidth = '200px';
-        notification.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.3)';
-        
-        notification.innerHTML = `
-            <div class="flex items-center justify-center text-sm font-semibold">
-                <div class="flex items-center justify-center w-5 h-5 rounded-full ${type === 'success' ? 'bg-white text-green-600' : 'bg-white text-red-600'} mr-3">
-                    <i class="fas ${type === 'success' ? 'fa-check' : 'fa-times'} text-xs"></i>
-                </div>
-                <span>${message}</span>
-            </div>
-        `;
-        
-        document.body.appendChild(notification);
-        
-        // Amazon-style animation with bounce effect
-        setTimeout(() => {
-            notification.classList.remove('scale-0');
-            notification.classList.add('scale-110');
-            setTimeout(() => {
-                notification.classList.remove('scale-110');
-                notification.classList.add('scale-100');
-            }, 150);
-        }, 100);
-        
-        // Fade out after 2.5 seconds
-        setTimeout(() => {
-            notification.style.opacity = '0';
-            notification.style.transform = 'scale(0.8) translateY(-10px)';
-            setTimeout(() => {
-                if (document.body.contains(notification)) {
-                    document.body.removeChild(notification);
-                }
-            }, 400);
-        }, 2500);
+  function showNotification(message, _buttonElement, type = 'success') {
+    // Use a global notification container at the top right
+    let container = document.getElementById('global-notification-container');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'global-notification-container';
+      container.style.position = 'fixed';
+      container.style.top = '90px';
+      container.style.right = '32px';
+      container.style.zIndex = '99999';
+      container.style.minWidth = '260px';
+      container.style.maxWidth = '350px';
+      container.style.display = 'flex';
+      container.style.flexDirection = 'column';
+      container.style.alignItems = 'flex-end';
+      container.style.pointerEvents = 'none';
+      document.body.appendChild(container);
     }
+    const notification = document.createElement('div');
+    notification.className = `px-4 py-3 rounded-lg shadow-xl transform transition-all duration-500 scale-0 mb-2 ${
+      type === 'success' ? 'bg-green-600 text-white border-2 border-green-500' : 'bg-red-600 text-white border-2 border-red-500'
+    }`;
+    notification.style.minWidth = '200px';
+    notification.style.maxWidth = '350px';
+    notification.style.boxShadow = '0 10px 25px rgba(0, 0, 0, 0.3)';
+    notification.style.pointerEvents = 'auto';
+    notification.innerHTML = `
+      <div class="flex items-center justify-center text-sm font-semibold">
+        <div class="flex items-center justify-center w-5 h-5 rounded-full ${type === 'success' ? 'bg-white text-green-600' : 'bg-white text-red-600'} mr-3">
+          <i class="fas ${type === 'success' ? 'fa-check' : 'fa-times'} text-xs"></i>
+        </div>
+        <span>${message}</span>
+      </div>
+    `;
+    container.appendChild(notification);
+    setTimeout(() => {
+      notification.classList.remove('scale-0');
+      notification.classList.add('scale-110');
+      setTimeout(() => {
+        notification.classList.remove('scale-110');
+        notification.classList.add('scale-100');
+      }, 150);
+    }, 100);
+    setTimeout(() => {
+      notification.style.opacity = '0';
+      notification.style.transform = 'scale(0.8) translateY(-10px)';
+      setTimeout(() => {
+        if (container.contains(notification)) {
+          container.removeChild(notification);
+        }
+      }, 400);
+    }, 2500);
+  }
 });
 </script>
 

@@ -325,8 +325,7 @@ def checkout_page(request):
                     postal_code=request.POST.get('postal_code', ''),
                     country=request.POST.get('country', 'Egypt'),
                     total_amount=total_price,
-                    notes=request.POST.get('notes', ''),
-                    payment_method=selected_payment_method  # Store the selected payment method
+                    notes=request.POST.get('notes', '')
                 )
                 
                 logger.info(f"Created order #{order.order_id} for {order.customer_name}")

@@ -4,12 +4,30 @@
 {% block title %}Order Confirmation - ECM Website{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
+<style>
+    /* Prevent global SVG scaling issues */
+    .order-success-icon svg {
+        width: 80px !important;
+        height: 80px !important;
+        max-width: 80px;
+        max-height: 80px;
+        display: inline-block;
+    }
+    
+    /* Fix for fallback cart icon sizing */
+    .fallback-cart-icon {
+        width: 16px !important;
+        height: 16px !important;
+        max-width: 16px !important;
+        max-height: 16px !important;
+    }
+</style>
+<div class="container mx-auto px-4 py-12 mt-8">
     <div class="max-w-3xl mx-auto">
         <!-- Success Header -->
         <div class="text-center mb-8">
-            <div class="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-4">
-                <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="inline-flex items-center justify-center bg-green-100 rounded-full mb-4 order-success-icon mx-auto" style="width:80px; height:80px;">
+                <svg class="text-green-600" style="width:40px; height:40px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                 </svg>
             </div>
@@ -19,8 +37,8 @@
         
         <!-- Order Details -->
         <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-            <h2 class="text-xl font-semibold mb-6 flex items-center">
-                <svg class="w-6 h-6 mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <h2 class="text-xl font-semibold mb-6 flex items-center order-success-icon">
+                <svg class="mr-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                           d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                 </svg>
@@ -85,9 +103,9 @@
                              class="w-full h-full object-cover rounded-lg">
                     {% else %}
                         <div class="w-full h-full bg-gray-200 rounded-lg flex items-center justify-center">
-                            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="fallback-cart-icon text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                                      d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
                             </svg>
                         </div>
                     {% endif %}
@@ -111,22 +129,22 @@
         <div class="bg-blue-50 rounded-lg p-6 mb-8">
             <h2 class="text-lg font-semibold text-blue-900 mb-4">What happens next?</h2>
             <div class="space-y-3">
-                <div class="flex items-start">
-                    <div class="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">1</div>
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-base font-bold">1</div>
                     <div class="ml-3">
                         <p class="font-medium text-blue-900">Order Confirmation</p>
                         <p class="text-sm text-blue-700">You'll receive an email confirmation shortly</p>
                     </div>
                 </div>
-                <div class="flex items-start">
-                    <div class="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">2</div>
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-base font-bold">2</div>
                     <div class="ml-3">
                         <p class="font-medium text-blue-900">Processing</p>
                         <p class="text-sm text-blue-700">We'll prepare your order and contact you within 24 hours</p>
                     </div>
                 </div>
-                <div class="flex items-start">
-                    <div class="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">3</div>
+                <div class="flex items-center">
+                    <div class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-base font-bold">3</div>
                     <div class="ml-3">
                         <p class="font-medium text-blue-900">Delivery Arrangement</p>
                         <p class="text-sm text-blue-700">We'll coordinate delivery details and payment (Cash on Delivery)</p>
@@ -137,20 +155,15 @@
         
         <!-- Action Buttons -->
         <div class="text-center space-y-4">
-            <a href="{% url 'parts:part_list' %}" 
-               class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg 
-                      hover:bg-blue-700 transition-colors">
-                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                          d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
-                </svg>
-                Continue Shopping
+            <a href="{% url 'parts:part_list' %}"
+               class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+                <i class="fas fa-shopping-cart mr-2"></i>
+                <span>Continue Shopping</span>
             </a>
-            
             <div class="text-sm text-gray-600">
-                Need help? Contact us at 
-                <a href="mailto:info@ecm-magirus.com" class="text-blue-600 hover:text-blue-800">info@ecm-magirus.com</a> 
-                or call 
+                Need help? Contact us at
+                <a href="mailto:info@ecm-magirus.com" class="text-blue-600 hover:text-blue-800">info@ecm-magirus.com</a>
+                or call
                 <a href="tel:+201234567890" class="text-blue-600 hover:text-blue-800">+20 123 456 7890</a>
             </div>
         </div>

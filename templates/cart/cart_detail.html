@@ -93,12 +93,7 @@
 
             <!-- Right Section: Order Summary -->
             <section class="right-section">
-                <div class="address-details">
-                    <p class="customer-name">Customer Information</p>
-                    <p>Delivery Address</p>
-                    <p>To be filled at checkout</p>
-                    <a href="#" class="edit-btn">Edit</a>
-                </div>
+                
 
                 <div class="payment-method">
                     <p class="payment-title">Payment method <span class="info-icon">&#9432;</span></p>
@@ -285,7 +280,7 @@ window.updateItemQuantity = function(partId, change) {
     }
     
     // Send AJAX request to update quantity in backend
-    fetch('/cart/update-quantity/', {
+    fetch('/parts/cart/update-quantity/', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -297,9 +292,18 @@ window.updateItemQuantity = function(partId, change) {
         })
     })
     .then(response => response.json())
+
     .then(data => {
         if (data.success) {
             console.log("Backend updated successfully", data);
+            // Try to update checkout page if open in another tab or iframe
+            if (window.opener && !window.opener.closed) {
+                try { window.opener.location.reload(); } catch (e) {}
+            }
+            if (window.parent && window.parent !== window) {
+                try { window.parent.location.reload(); } catch (e) {}
+            }
+            // If a hidden checkout cart summary exists, update it here (future enhancement)
         } else {
             console.error("Failed to update backend:", data.error);
         }

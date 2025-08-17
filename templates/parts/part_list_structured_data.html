@@ -1,0 +1,37 @@
+{% load static %}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "itemListElement": [
+  {% for part in parts %}
+    {
+      "@type": "ListItem",
+      "position": {{ forloop.counter }},
+      "item": {
+        "@type": "Product",
+        "name": "{{ part.name }}",
+        "image": {% if part.image %}"{{ part.image.url }}"{% else %}null{% endif %},
+        "description": "{{ part.description|default:part.name }}",
+        "sku": "{{ part.part_number }}",
+        "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'parts:part_detail' part.slug %}",
+        {% if part.category %}
+        "category": "{{ part.category.name }}",
+        {% endif %}
+        "offers": {
+          "@type": "Offer",
+          "url": "{{ request.scheme }}://{{ request.get_host }}{% url 'parts:part_detail' part.slug %}",
+          {% if part.price %}
+          "price": "{{ part.price|floatformat:2 }}",
+          "priceCurrency": "EGP",
+          {% endif %}
+          "availability": "{% if part.stock > 0 %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+          "priceValidUntil": "{% now 'Y' %}-12-31"
+        }
+      }
+    }{% if not forloop.last %},{% endif %}
+  {% endfor %}
+  ]
+}
+</script>

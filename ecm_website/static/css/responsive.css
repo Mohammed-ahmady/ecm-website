@@ -1,0 +1,339 @@
+/* RESPONSIVE FIXES - ECM Website Mobile Optimization */
+
+/* =================================================================
+   RESPONSIVE BREAKPOINTS USED:
+   - 375px: Small mobile phones  
+   - 480px: Mobile phones
+   - 576px: Small tablets
+   - 768px: Tablets
+   - 992px: Small laptops  
+   - 1200px: Desktops
+   ================================================================= */
+
+/* Base mobile-first styles */
+* {
+    box-sizing: border-box;
+}
+
+/* RESPONSIVE FIX: Ensure images never overflow */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* RESPONSIVE FIX: Better touch targets on mobile */
+@media (max-width: 768px) {
+    a, button, .btn, [role="button"] {
+        min-height: 44px;
+        min-width: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        touch-action: manipulation;
+    }
+    
+    /* Prevent zoom on form inputs */
+    input[type="text"],
+    input[type="email"], 
+    input[type="tel"],
+    input[type="search"],
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
+
+/* RESPONSIVE FIX: Typography scaling */
+@media (max-width: 375px) {
+    h1 { font-size: 1.5rem !important; }
+    h2 { font-size: 1.25rem !important; }
+    h3 { font-size: 1.125rem !important; }
+    h4 { font-size: 1rem !important; }
+    
+    .text-4xl { font-size: 1.75rem !important; }
+    .text-3xl { font-size: 1.5rem !important; }
+    .text-2xl { font-size: 1.25rem !important; }
+    .text-xl { font-size: 1.125rem !important; }
+}
+
+@media (max-width: 480px) {
+    h1 { font-size: 1.75rem !important; }
+    h2 { font-size: 1.5rem !important; }
+    h3 { font-size: 1.25rem !important; }
+}
+
+/* RESPONSIVE FIX: Container padding adjustments */
+@media (max-width: 640px) {
+    .container {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+}
+
+@media (max-width: 375px) {
+    .container {
+        padding-left: 0.75rem !important;
+        padding-right: 0.75rem !important;
+    }
+}
+
+/* RESPONSIVE FIX: Grid system improvements */
+@media (max-width: 576px) {
+    .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
+    .sm\\:grid-cols-2 { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
+    .md\\:grid-cols-3 { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
+    .lg\\:grid-cols-4 { grid-template-columns: repeat(1, minmax(0, 1fr)) !important; }
+}
+
+@media (min-width: 576px) and (max-width: 768px) {
+    .sm\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+    .md\\:grid-cols-3 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+    .lg\\:grid-cols-4 { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+}
+
+/* RESPONSIVE FIX: Navigation specific fixes */
+@media (max-width: 1024px) {
+    .hidden.lg\\:flex {
+        display: none !important;
+    }
+    
+    .hidden.md\\:flex.lg\\:hidden {
+        display: flex !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .hidden.md\\:flex {
+        display: none !important;
+    }
+    
+    .flex.items-center.space-x-2.md\\:hidden {
+        display: flex !important;
+    }
+}
+
+/* RESPONSIVE FIX: Card and content spacing */
+@media (max-width: 768px) {
+    .py-16 { padding-top: 3rem !important; padding-bottom: 3rem !important; }
+    .py-12 { padding-top: 2.5rem !important; padding-bottom: 2.5rem !important; }
+    .py-10 { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+    .py-8 { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+    
+    .mb-10 { margin-bottom: 2rem !important; }
+    .mb-8 { margin-bottom: 1.5rem !important; }
+    .mb-6 { margin-bottom: 1rem !important; }
+    
+    .p-8 { padding: 1.5rem !important; }
+    .p-6 { padding: 1rem !important; }
+    .p-4 { padding: 0.75rem !important; }
+}
+
+@media (max-width: 480px) {
+    .py-16 { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+    .py-12 { padding-top: 2rem !important; padding-bottom: 2rem !important; }
+    
+    .p-8 { padding: 1rem !important; }
+    .p-6 { padding: 0.75rem !important; }
+}
+
+/* RESPONSIVE FIX: Button improvements */
+@media (max-width: 768px) {
+    .space-y-4.sm\\:space-y-0.sm\\:space-x-6 {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 1rem !important;
+    }
+    
+    .space-y-4.sm\\:space-y-0.sm\\:space-x-6 > * {
+        margin: 0 !important;
+    }
+    
+    .bg-orange-600,
+    .bg-orange-500,
+    .border-2.border-white {
+        width: 100% !important;
+        text-align: center !important;
+        justify-content: center !important;
+        padding: 0.875rem 1.5rem !important;
+        font-size: 0.95rem !important;
+    }
+}
+
+/* RESPONSIVE FIX: Statistics section */
+@media (max-width: 640px) {
+    .grid.grid-cols-1.sm\\:grid-cols-3 {
+        grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+        gap: 2rem !important;
+    }
+    
+    .grid.grid-cols-1.sm\\:grid-cols-3 > div {
+        border-bottom: 1px solid #e5e7eb;
+        padding-bottom: 1.5rem;
+    }
+    
+    .grid.grid-cols-1.sm\\:grid-cols-3 > div:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+}
+
+/* RESPONSIVE FIX: Truck models and parts grid */
+@media (max-width: 640px) {
+    .h-48.sm\\:h-56.lg\\:h-64,
+    .h-40.sm\\:h-48 {
+        height: 10rem !important; /* 160px */
+    }
+}
+
+@media (max-width: 480px) {
+    .h-48.sm\\:h-56.lg\\:h-64,
+    .h-40.sm\\:h-48 {
+        height: 8rem !important; /* 128px */
+    }
+}
+
+/* RESPONSIVE FIX: Footer improvements */
+@media (max-width: 640px) {
+    footer .grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-3 {
+        grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+        text-align: center !important;
+        gap: 2rem !important;
+    }
+    
+    footer .sm\\:text-left {
+        text-align: center !important;
+    }
+    
+    footer .sm\\:justify-start {
+        justify-content: center !important;
+    }
+    
+    footer .break-all {
+        word-break: break-word !important;
+    }
+}
+
+/* RESPONSIVE FIX: Search form improvements */
+@media (max-width: 768px) {
+    .grid.grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-4 {
+        grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+        gap: 1rem !important;
+    }
+    
+    .sm\\:col-span-2 {
+        grid-column: span 1 !important;
+    }
+    
+    .w-full.sm\\:w-auto {
+        width: 100% !important;
+    }
+}
+
+/* RESPONSIVE FIX: Swiper/Carousel adjustments */
+@media (max-width: 768px) {
+    .swiper-slide {
+        margin: 0 0.5rem !important;
+        width: calc(100% - 1rem) !important;
+    }
+    
+    .testimonial-swiper .swiper-slide {
+        min-height: auto !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .swiper-slide {
+        margin: 0 0.25rem !important;
+        width: calc(100% - 0.5rem) !important;
+    }
+}
+
+/* RESPONSIVE FIX: Ensure no horizontal scroll */
+html, body {
+    overflow-x: hidden;
+}
+
+.container,
+.max-w-6xl,
+.max-w-4xl,
+.max-w-3xl,
+.max-w-2xl {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* RESPONSIVE FIX: Utility classes for better mobile experience */
+@media (max-width: 768px) {
+    .mobile-center { text-align: center !important; }
+    .mobile-full-width { width: 100% !important; }
+    .mobile-hidden { display: none !important; }
+    .mobile-block { display: block !important; }
+    .mobile-flex { display: flex !important; }
+    .mobile-stack { flex-direction: column !important; }
+    
+    .mobile-p-4 { padding: 1rem !important; }
+    .mobile-p-2 { padding: 0.5rem !important; }
+    .mobile-m-2 { margin: 0.5rem !important; }
+    .mobile-mb-4 { margin-bottom: 1rem !important; }
+    
+    .mobile-text-sm { font-size: 0.875rem !important; }
+    .mobile-text-base { font-size: 1rem !important; }
+}
+
+/* RESPONSIVE FIX: Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* RESPONSIVE FIX: High contrast mode adjustments */
+@media (prefers-contrast: high) {
+    .bg-gray-50,
+    .bg-gray-100 {
+        background-color: #ffffff !important;
+    }
+    
+    .text-gray-600,
+    .text-gray-500 {
+        color: #000000 !important;
+    }
+    
+    .border-gray-200,
+    .border-gray-300 {
+        border-color: #000000 !important;
+    }
+}
+
+/* RESPONSIVE FIX: Print styles */
+@media print {
+    .hidden-print,
+    header,
+    footer,
+    .back-to-top-btn,
+    .floating-cart,
+    .mobile-menu,
+    .swiper-pagination,
+    .checkout-btn,
+    .add-to-cart-btn {
+        display: none !important;
+    }
+    
+    body {
+        font-size: 12pt !important;
+        line-height: 1.4 !important;
+        color: #000000 !important;
+        background: #ffffff !important;
+    }
+    
+    .container {
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}

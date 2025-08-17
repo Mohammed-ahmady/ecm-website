@@ -1,0 +1,11 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /cart/checkout/
+Disallow: /accounts/
+Allow: /
+
+# Allow all crawlers to see product pages
+Allow: /parts/
+
+# Sitemap location
+Sitemap: https://magiruscenter.me/sitemap.xml

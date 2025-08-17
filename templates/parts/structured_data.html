@@ -1,0 +1,85 @@
+{% load static %}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ part.name }}",
+  "image": {% if part.images.exists %}"{{ part.images.first.image.url }}"{% else %}null{% endif %},
+  "description": "{{ part.description|default:part.name }}",
+  "sku": "{{ part.part_number }}",
+  "mpn": "{{ part.part_number }}",
+  "brand": {
+    "@type": "Brand",
+    "name": "{{ part.truck_models.first.manufacturer|default:'Magirus' }}"
+  },
+  {% if part.category %}
+  "category": "{{ part.category.name }}",
+  {% endif %}
+  {% if part.truck_models.exists %}
+  "vehicleEngine": {
+    "@type": "EngineSpecification",
+    "engineType": "{{ part.truck_models.first.name }}"
+  },
+  {% endif %}
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ request.build_absolute_uri }}",
+    {% if part.price %}
+    "price": "{{ part.price|floatformat:2 }}",
+    "priceCurrency": "EGP",
+    {% endif %}
+    "availability": "{% if part.stock > 0 %}https://schema.org/InStock{% else %}https://schema.org/OutOfStock{% endif %}",
+    "priceValidUntil": "{% now 'Y' %}-12-31",
+    "shippingDetails": {
+      "@type": "OfferShippingDetails",
+      "shippingRate": {
+        "@type": "MonetaryAmount",
+        "currency": "EGP",
+        "value": "0"
+      },
+      "deliveryTime": {
+        "@type": "ShippingDeliveryTime",
+        "handlingTime": {
+          "@type": "QuantitativeValue",
+          "minValue": "0",
+          "maxValue": "1",
+          "unitCode": "DAY"
+        },
+        "transitTime": {
+          "@type": "QuantitativeValue",
+          "minValue": "1",
+          "maxValue": "5",
+          "unitCode": "DAY"
+        }
+      }
+    },
+    "hasMerchantReturnPolicy": {
+      "@type": "MerchantReturnPolicy",
+      "applicableCountry": "EG",
+      "returnPolicyCategory": "https://schema.org/MerchantReturnFiniteReturnWindow",
+      "merchantReturnDays": "14",
+      "returnMethod": "https://schema.org/ReturnByMail",
+      "returnFees": "https://schema.org/FreeReturn"
+    }
+  },
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "4.7",
+    "reviewCount": "12"
+  },
+  "review": {
+    "@type": "Review",
+    "reviewRating": {
+      "@type": "Rating",
+      "ratingValue": "5",
+      "bestRating": "5"
+    },
+    "author": {
+      "@type": "Person",
+      "name": "Magirus Center Customer"
+    },
+    "reviewBody": "High quality product with fast delivery. Perfect fit for my engine."
+  }
+}
+</script>

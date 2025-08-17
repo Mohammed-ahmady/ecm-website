@@ -1,0 +1,47 @@
+# Railway specific deployment instructions
+
+app = "ecm-website"
+
+[build]
+  builder = "DOCKERFILE"
+  dockerfilePath = "Dockerfile"
+
+[deploy]
+  strategy = "rolling"
+  healthcheckPath = "/health/"
+  healthcheckTimeout = 10
+  restartPolicyType = "on_failure"
+  numReplicas = 1
+
+[[services]]
+  name = "web"
+  protocol = "http"
+  mountPath = "/"
+
+  [[services.ports]]
+    port = 8000
+    handlers = ["http"]
+    force_https = true
+
+  [services.resources]
+    memory = 512
+    cpu = 0.5
+
+  [services.metrics]
+    path = "/metrics"
+    port = 8000
+
+[[plugins]]
+  name = "postgres"
+  type = "postgres"
+  
+  [plugins.options]
+    ssl = true
+    backup = true
+    backupSchedule = "0 0 * * *"  # Daily backups at midnight
+    version = "14"
+
+[[envs]]
+  name = "production"
+  description = "Production environment"
+  defaultBranch = "main"

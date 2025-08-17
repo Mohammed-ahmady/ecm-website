@@ -8,8 +8,22 @@ from .simple_health import root_health_check
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.sitemaps.views import sitemap
-from .sitemaps import sitemaps
 from django.views.decorators.cache import cache_page
+from django.urls import re_path
+from django.contrib.sitemaps import Sitemap
+from django.urls import reverse
+
+class HomeSitemap(Sitemap):
+    priority = 1.0
+    changefreq = 'daily'
+    def items(self):
+        return ['home']
+    def location(self, item):
+        return reverse(item)
+
+sitemaps = {
+    'home': HomeSitemap(),
+}
 
 urlpatterns = [
     path('health/', health_check, name='health_check'),
@@ -23,8 +37,8 @@ urlpatterns = [
     path('parts/', include('parts.urls')), # Link to your parts app URLs
     
     # SEO: Sitemap and robots.txt
-    path('sitemap.xml', cache_page(86400)(sitemap), {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
-    path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain'), name='robots_txt'),
+    re_path(r'^robots\.txt$', TemplateView.as_view(template_name="robots.txt", content_type="text/plain"), name='robots_txt'),
+    re_path(r'^sitemap\.xml$', sitemap, {'sitemaps': sitemaps}, name='django.contrib.sitemaps.views.sitemap'),
 ]
 
 

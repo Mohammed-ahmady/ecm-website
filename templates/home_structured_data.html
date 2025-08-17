@@ -1,0 +1,41 @@
+{% load static %}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "url": "https://magiruscenter.me",
+  "logo": "https://magiruscenter.me{% static 'images/delivery-truck.png' %}",
+  "name": "European Center for Magirus",
+  "description": "Authentic Truck Spare Parts for Magirus and other European brands",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Cairo",
+    "addressRegion": "Cairo",
+    "addressCountry": "EG"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+201234567890",
+    "contactType": "customer service"
+  },
+  "sameAs": [
+    "https://facebook.com/magiruscenter",
+    "https://instagram.com/magiruscenter"
+  ]
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "European Center for Magirus",
+  "url": "https://magiruscenter.me",
+  "potentialAction": {
+    "@type": "SearchAction",
+    "target": "https://magiruscenter.me/parts/?q={search_term_string}",
+    "query-input": "required name=search_term_string"
+  }
+}
+</script>
